@@ -501,24 +501,41 @@ fn state_tag(s: &SessionInfo) -> Tag {
 
 impl Render for SessionsPage {
     fn render(&mut self, _: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
-        let n = self.daemon.read(cx).sessions.len();
-        v_flex()
-            .size_full()
-            .child(div().px_6().pt_6().pb_4().child(ui::page_header(
-                "会话",
-                format!("{n} 个交互式会话，由 agent 通过 `xssh session` 打开。这里只读查看。"),
-                div(),
-                cx,
-            )))
-            .child(
-                h_flex()
-                    .flex_1()
-                    .min_h_0()
-                    .items_start()
-                    .border_t_1()
-                    .border_color(cx.theme().border)
-                    .child(self.render_lists(cx))
-                    .child(div().flex_1().h_full().min_w_0().child(self.render_detail(cx))),
-            )
+        let d = self.daemon.read(cx);
+        let (n, running) = (d.sessions.len(), d.running());
+        let page = v_flex().size_full().child(div().px_6().pt_6().pb_4().child(ui::page_header(
+            "会话",
+            format!("{n} 个交互式会话，由 agent 通过 `xssh session` 打开。这里只读查看。"),
+            div(),
+            cx,
+        )));
+        // Nothing to list or show: one explanation instead of two empty panes.
+        if n == 0 && self.history.is_empty() {
+            let hint = "agent 运行 `xssh session open <主机> --name <名称>` 后，会话出现在这里，可以只读查看它的实时屏幕和完整日志，不会干扰 agent。";
+            return page
+                .child(
+                    div()
+                        .flex_1()
+                        .border_t_1()
+                        .border_color(cx.theme().border)
+                        .child(ui::empty_state(
+                            if running { "没有打开的会话" } else { "守护进程未运行，没有会话" },
+                            hint,
+                            cx,
+                        )),
+                )
+                .into_any_element();
+        }
+        page.child(
+            h_flex()
+                .flex_1()
+                .min_h_0()
+                .items_start()
+                .border_t_1()
+                .border_color(cx.theme().border)
+                .child(self.render_lists(cx))
+                .child(div().flex_1().h_full().min_w_0().child(self.render_detail(cx))),
+        )
+        .into_any_element()
     }
 }

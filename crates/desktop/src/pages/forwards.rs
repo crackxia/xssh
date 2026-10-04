@@ -8,6 +8,7 @@ use gpui_kit::base::Disableable as _;
 use gpui_kit::component::button::{Button, ButtonVariant, ButtonVariants as _};
 use gpui_kit::component::input::{Input, InputState};
 use gpui_kit::component::radio::RadioGroup;
+use gpui_kit::component::select::{Select, SelectState};
 use gpui_kit::component::tag::Tag;
 use gpui_kit::component::{ActiveTheme as _, IconName, Sizable as _, WindowExt as _, h_flex, v_flex};
 use gpui_kit::{
@@ -20,7 +21,9 @@ use xssh_core::api::{ForwardInfo, Kind, Request};
 pub struct ForwardsPage {
     backend: Arc<Backend>,
     daemon: Entity<DaemonModel>,
-    host: Entity<InputState>,
+    /// Saved host aliases offered by `host`.
+    aliases: Vec<String>,
+    host: Entity<SelectState<Vec<String>>>,
     spec: Entity<InputState>,
     remote: bool,
     adding: bool,
@@ -30,10 +33,13 @@ pub struct ForwardsPage {
 impl ForwardsPage {
     pub fn new(backend: Arc<Backend>, daemon: Entity<DaemonModel>, window: &mut Window, cx: &mut Context<Self>) -> Self {
         cx.observe(&daemon, |_, _, cx| cx.notify()).detach();
+        let aliases = saved_aliases(&backend);
+        let items = aliases.clone();
         ForwardsPage {
             backend,
             daemon,
-            host: cx.new(|cx| InputState::new(window, cx).placeholder("主机别名")),
+            aliases,
+            host: cx.new(|cx| SelectState::new(items, None, window, cx).searchable(true)),
             spec: cx.new(|cx| InputState::new(window, cx).placeholder("5433:localhost:5432")),
             remote: false,
             adding: false,
@@ -41,11 +47,21 @@ impl ForwardsPage {
         }
     }
 
+    /// Pick up hosts added or removed elsewhere since the page was built.
+    pub fn reload(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        let aliases = saved_aliases(&self.backend);
+        if aliases != self.aliases {
+            self.aliases = aliases.clone();
+            self.host.update(cx, |s, cx| s.set_items(aliases, window, cx));
+            cx.notify();
+        }
+    }
+
     fn add(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        let host = self.host.read(cx).value().trim().to_string();
+        let host = self.host.read(cx).selected_value().cloned().unwrap_or_default();
         let spec = self.spec.read(cx).value().trim().to_string();
         if host.is_empty() || spec.is_empty() {
-            ui::notify_error(window, cx, "无法添加", &xssh_core::Error::usage("请填写主机别名和转发规则"));
+            ui::notify_error(window, cx, "无法添加", &xssh_core::Error::usage("请选择主机并填写转发规则"));
             return;
         }
         let (local, remote) = if self.remote { (None, Some(spec)) } else { (Some(spec), None) };
@@ -102,6 +118,10 @@ impl ForwardsPage {
                 })
         });
     }
+}
+
+fn saved_aliases(backend: &Backend) -> Vec<String> {
+    backend.hosts().map(|h| h.into_iter().map(|h| h.alias).collect()).unwrap_or_default()
 }
 
 impl ForwardsPage {
@@ -166,7 +186,7 @@ impl Render for ForwardsPage {
         let forwards = self.daemon.read(cx).forwards.clone();
         let add = h_flex()
             .gap_2()
-            .child(div().w(px(140.)).child(Input::new(&self.host)))
+            .child(div().w(px(180.)).child(Select::new(&self.host).placeholder("选择主机")))
             .child(
                 RadioGroup::horizontal("fwd-kind")
                     .children(["本地 -L", "远端 -R"])
@@ -192,7 +212,13 @@ impl Render for ForwardsPage {
             "本地 -L：[绑定地址:]本机端口:目标地址:端口。本机 127.0.0.1 的端口经服务器转到目标。"
         };
         let body = if forwards.is_empty() {
-            ui::table_empty(&COLS, "没有端口转发", cx).into_any_element()
+            ui::table_empty(
+                &COLS,
+                "没有端口转发",
+                "用上方表单添加，或让 agent 运行 `xssh forward add <主机> -L 本机端口:目标地址:端口`。",
+                cx,
+            )
+            .into_any_element()
         } else {
             let n = forwards.len();
             ui::table(

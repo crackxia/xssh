@@ -3,12 +3,12 @@
 use crate::backend::Backend;
 use crate::model::{DaemonModel, DaemonStatus};
 use crate::ui;
-use gpui_kit::base::Disableable as _;
+use gpui_kit::base::{Disableable as _, StyledExt as _};
 use gpui_kit::component::button::{Button, ButtonVariant, ButtonVariants as _};
 use gpui_kit::component::{ActiveTheme as _, IconName, WindowExt as _, h_flex, v_flex};
 use gpui_kit::prelude::FluentBuilder as _;
 use gpui_kit::{
-    App, AppContext as _, Context, Entity, IntoElement, ParentElement as _, Render, SharedString, Styled as _, UniformListScrollHandle,
+    App, AppContext as _, Context, Entity, IntoElement, ParentElement as _, Render, Styled as _, UniformListScrollHandle,
     Window, div, px,
 };
 use std::future::Future;
@@ -126,7 +126,7 @@ impl DaemonPage {
     }
 }
 
-fn row(label: &str, value: impl Into<SharedString>, cx: &App) -> impl IntoElement {
+fn row(label: &str, value: impl IntoElement, cx: &App) -> impl IntoElement {
     h_flex()
         .gap_4()
         .py_1()
@@ -138,7 +138,7 @@ fn row(label: &str, value: impl Into<SharedString>, cx: &App) -> impl IntoElemen
                 .text_color(cx.theme().muted_foreground)
                 .child(label.to_string()),
         )
-        .child(div().text_sm().child(value.into()))
+        .child(div().min_w_0().text_sm().child(value))
 }
 
 impl Render for DaemonPage {
@@ -148,11 +148,11 @@ impl Render for DaemonPage {
         // A daemon that answers but is incompatible can still be stopped or restarted.
         let present = running || matches!(d.status, DaemonStatus::Error(_));
         let busy = d.busy;
-        let status = match &d.status {
-            DaemonStatus::Unknown => "检测中…".to_string(),
-            DaemonStatus::Running => "运行中".to_string(),
-            DaemonStatus::Stopped => "未运行（agent 调用 xssh 时自动启动）".to_string(),
-            DaemonStatus::Error(e) => e.clone(),
+        let (dot, status) = match &d.status {
+            DaemonStatus::Unknown => (cx.theme().muted_foreground, "检测中…".to_string()),
+            DaemonStatus::Running => (cx.theme().success, "运行中".to_string()),
+            DaemonStatus::Stopped => (cx.theme().muted_foreground, "未运行（agent 调用 xssh 时自动启动）".to_string()),
+            DaemonStatus::Error(e) => (cx.theme().danger, e.clone()),
         };
         let conns = if d.connections.is_empty() {
             "无".to_string()
@@ -168,7 +168,14 @@ impl Render for DaemonPage {
             .rounded(cx.theme().radius)
             .border_1()
             .border_color(cx.theme().border)
-            .child(row("状态", status, cx))
+            .child(row(
+                "状态",
+                h_flex()
+                    .gap_2()
+                    .child(div().flex_none().size(px(8.)).rounded_full().bg(dot))
+                    .child(div().font_medium().child(status)),
+                cx,
+            ))
             .when_some(d.pid, |this, pid| this.child(row("PID", pid.to_string(), cx)))
             .when(running, |this| {
                 this.child(row("已运行", ui::human_secs(d.uptime_secs), cx))

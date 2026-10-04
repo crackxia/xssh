@@ -126,7 +126,7 @@ impl MainView {
         }
     }
 
-    fn show(&mut self, page: Page, cx: &mut Context<Self>) {
+    fn show(&mut self, page: Page, window: &mut Window, cx: &mut Context<Self>) {
         self.page = page;
         match page {
             Page::Hosts => self.hosts.update(cx, |p, cx| p.reload(cx)),
@@ -134,7 +134,8 @@ impl MainView {
             Page::Audit => self.audit.update(cx, |p, cx| p.reload(cx)),
             Page::Daemon => self.daemon_page.update(cx, |p, cx| p.reload(cx)),
             Page::Integrations => self.integrations.update(cx, |p, cx| p.reload(cx)),
-            Page::Sessions | Page::Forwards => {}
+            Page::Forwards => self.forwards.update(cx, |p, cx| p.reload(window, cx)),
+            Page::Sessions => {}
         }
         self.sessions.update(cx, |p, cx| p.set_visible(page == Page::Sessions, cx));
         cx.notify();
@@ -164,10 +165,6 @@ impl MainView {
             .border_color(cx.theme().border)
             .bg(cx.theme().sidebar)
             .child(v_flex().px_2().pt_3().gap_1().flex_1().children(Page::ALL.into_iter().map(|p| {
-                let label = match counts(p) {
-                    Some(n) => format!("{}  {n}", p.label()),
-                    None => p.label().to_string(),
-                };
                 let selected = self.page == p;
                 h_flex()
                     .id(p.id())
@@ -184,9 +181,12 @@ impl MainView {
                             .font_medium()
                     })
                     .when(!selected, |this| this.hover(|this| this.bg(cx.theme().sidebar_accent.opacity(0.5))))
-                    .on_click(cx.listener(move |this, _, _, cx| this.show(p, cx)))
+                    .on_click(cx.listener(move |this, _, window, cx| this.show(p, window, cx)))
                     .child(Icon::new(p.icon()).small())
-                    .child(label)
+                    .child(div().flex_1().child(p.label()))
+                    .when_some(counts(p), |this, n| {
+                        this.child(div().text_xs().text_color(cx.theme().muted_foreground).child(n.to_string()))
+                    })
             })))
             .child(
                 div()
@@ -196,7 +196,7 @@ impl MainView {
                     .border_t_1()
                     .border_color(cx.theme().border)
                     .cursor_pointer()
-                    .on_click(cx.listener(|this, _, _, cx| this.show(Page::Daemon, cx)))
+                    .on_click(cx.listener(|this, _, window, cx| this.show(Page::Daemon, window, cx)))
                     .child(
                         h_flex()
                             .gap_2()

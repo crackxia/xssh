@@ -22,8 +22,32 @@ export interface Manifest {
 
 /** Used when KV has no manifest yet (first deploy); `scripts/release.mjs` writes the real one. */
 const FALLBACK: Manifest = {
-	latest: "0.2.1",
+	latest: "0.2.2",
 	releases: [
+		{
+			version: "0.2.2",
+			date: "2026-10-04",
+			notes: {
+				en: [
+					"Desktop audit log: multi-line commands no longer overlap; click a row for the full command and details.",
+					"Desktop port forwards: pick the host from saved hosts.",
+					"Desktop: empty states say how to fill each page; one-line subtitles; quieter success and unqueried states.",
+				],
+				zh: [
+					"桌面端审计日志：多行命令不再重叠，点击一行查看完整命令和详情。",
+					"桌面端端口转发：从已保存的主机中选择。",
+					"桌面端：空状态说明如何添加内容；副标题单行；成功和未查询状态不再抢眼。",
+				],
+			},
+			files: [
+				{
+					target: "windows-x86_64",
+					name: "xssh-0.2.2-windows-x86_64.zip",
+					size: 14898120,
+					sha256: "aeff83392efa71f5c98b74fa7d6562931c0cb61c7f842c77d26037de43ca9137",
+				},
+			],
+		},
 		{
 			version: "0.2.1",
 			date: "2026-10-04",

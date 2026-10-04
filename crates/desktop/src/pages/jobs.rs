@@ -3,10 +3,11 @@
 use crate::app::row_button;
 use crate::backend::Backend;
 use crate::ui::{self, Col, col, col_flex, col_right};
-use gpui_kit::base::Disableable as _;
+use gpui_kit::base::{Disableable as _, StyledExt as _};
 use gpui_kit::component::button::{Button, ButtonVariant};
 use gpui_kit::component::tag::Tag;
 use gpui_kit::component::{ActiveTheme as _, IconName, Sizable as _, WindowExt as _, h_flex, v_flex};
+use gpui_kit::prelude::FluentBuilder as _;
 use gpui_kit::{
     AnyElement, Context, IntoElement, ParentElement as _, Render, SharedString, Styled as _, UniformListScrollHandle, Window, div, px,
     uniform_list,
@@ -157,15 +158,22 @@ impl JobsPage {
 
     fn render_row(&self, r: &JobRecord, cx: &mut Context<Self>) -> AnyElement {
         let state = self.states.get(&r.id);
-        let tag = match state.map(|s| s.0.as_str()) {
-            None => Tag::secondary().child("未查询"),
-            Some("running") => Tag::info().child("运行中"),
-            Some("exited") => match state.and_then(|s| s.1) {
-                Some(0) => Tag::success().child("完成 0"),
-                Some(c) => Tag::danger().child(format!("退出 {c}")),
-                None => Tag::success().child("已结束"),
-            },
-            Some(s) => Tag::warning().child(state_label(s)),
+        let muted = cx.theme().muted_foreground;
+        // Unknown until queried: plain muted text, so the tags that do show carry news.
+        let status = match state.map(|s| s.0.as_str()) {
+            None => div().text_xs().text_color(muted).child("未查询").into_any_element(),
+            Some(st) => match st {
+                "running" => Tag::info().child("运行中"),
+                "exited" => match state.and_then(|s| s.1) {
+                    Some(0) => Tag::success().child("完成 0"),
+                    Some(c) => Tag::danger().child(format!("退出 {c}")),
+                    None => Tag::success().child("已结束"),
+                },
+                s => Tag::warning().child(state_label(s)),
+            }
+            .outline()
+            .xsmall()
+            .into_any_element(),
         };
         let (id, rec) = (r.id.clone(), r.clone());
         let actions = h_flex()
@@ -182,11 +190,24 @@ impl JobsPage {
         ui::table_row(
             &COLS,
             vec![
-                ui::clip(r.name.clone().map(|n| format!("{n} ({})", r.id)).unwrap_or(r.id.clone())),
+                h_flex()
+                    .min_w_0()
+                    .gap_1p5()
+                    .child(div().min_w_0().truncate().font_medium().child(r.name.clone().unwrap_or(r.id.clone())))
+                    .when(r.name.is_some(), |this| {
+                        this.child(div().flex_none().text_xs().text_color(muted).child(r.id.clone()))
+                    })
+                    .into_any_element(),
                 ui::clip(r.host.clone()),
-                ui::clip(r.command.clone()),
+                div()
+                    .min_w_0()
+                    .truncate()
+                    .font_family(cx.theme().mono_font_family.clone())
+                    .text_xs()
+                    .child(ui::one_line(&r.command))
+                    .into_any_element(),
                 ui::clip(ui::short_time(&r.started_at)),
-                tag.outline().xsmall().into_any_element(),
+                status,
                 actions.into_any_element(),
             ],
             px(40.),
@@ -216,7 +237,13 @@ impl Render for JobsPage {
             .disabled(self.checking)
             .on_click(cx.listener(|this, _, window, cx| this.check(window, cx)));
         let body = if self.records.is_empty() {
-            ui::table_empty(&COLS, "没有后台任务。agent 用 `xssh job start` 启动的长任务会出现在这里。", cx).into_any_element()
+            ui::table_empty(
+                &COLS,
+                "没有后台任务",
+                "agent 用 `xssh job start <主机> -- <命令>` 启动的长任务会出现在这里；任务在远端运行，点“查询状态”连接主机获取最新状态。",
+                cx,
+            )
+            .into_any_element()
         } else {
             let records = self.records.clone();
             ui::table(

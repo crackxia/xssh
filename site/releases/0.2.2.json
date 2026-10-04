@@ -1,0 +1,15 @@
+{
+	"date": "2026-10-04",
+	"notes": {
+		"en": [
+			"Desktop audit log: multi-line commands no longer overlap; click a row for the full command and details.",
+			"Desktop port forwards: pick the host from saved hosts.",
+			"Desktop: empty states say how to fill each page; one-line subtitles; quieter success and unqueried states."
+		],
+		"zh": [
+			"桌面端审计日志：多行命令不再重叠，点击一行查看完整命令和详情。",
+			"桌面端端口转发：从已保存的主机中选择。",
+			"桌面端：空状态说明如何添加内容；副标题单行；成功和未查询状态不再抢眼。"
+		]
+	}
+}

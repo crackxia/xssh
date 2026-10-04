@@ -45,7 +45,8 @@ pub fn notify_ok(window: &mut Window, cx: &mut App, msg: impl Into<SharedString>
     window.push_notification(Notification::success(msg), cx);
 }
 
-/// Page title row: title, a muted subtitle, and actions on the right.
+/// Page title row: title, a muted subtitle, and actions on the right. The subtitle never wraps:
+/// keep it to one short sentence; a narrow window ends it with "…".
 pub fn page_header(title: &str, subtitle: impl Into<SharedString>, actions: impl IntoElement, cx: &App) -> impl IntoElement {
     h_flex()
         .w_full()
@@ -58,7 +59,7 @@ pub fn page_header(title: &str, subtitle: impl Into<SharedString>, actions: impl
                 .min_w_0()
                 .gap_1()
                 .child(div().text_xl().font_semibold().child(title.to_string()))
-                .child(div().text_sm().text_color(cx.theme().muted_foreground).child(subtitle.into())),
+                .child(div().text_sm().truncate().text_color(cx.theme().muted_foreground).child(subtitle.into())),
         )
         .child(h_flex().flex_none().gap_2().child(actions))
 }
@@ -73,6 +74,34 @@ pub fn empty(text: impl Into<SharedString>, cx: &App) -> impl IntoElement {
         .text_sm()
         .text_color(cx.theme().muted_foreground)
         .child(text.into())
+}
+
+/// An empty state that says what is missing and how it gets filled: a title and a muted hint
+/// (skipped when empty).
+pub fn empty_state(title: impl Into<SharedString>, hint: impl Into<SharedString>, cx: &App) -> Div {
+    let hint: SharedString = hint.into();
+    v_flex()
+        .w_full()
+        .items_center()
+        .gap_1p5()
+        .pt_10()
+        .px_6()
+        .child(div().text_sm().font_medium().child(title.into()))
+        .when(!hint.is_empty(), |this| {
+            this.child(
+                div()
+                    .max_w(px(520.))
+                    .text_xs()
+                    .text_center()
+                    .text_color(cx.theme().muted_foreground)
+                    .child(hint),
+            )
+        })
+}
+
+/// Multi-line text (scripts, heredocs) on one line: lines joined by " ↵ ", blank lines dropped.
+pub fn one_line(s: &str) -> String {
+    s.lines().map(str::trim).filter(|l| !l.is_empty()).collect::<Vec<_>>().join(" ↵ ")
 }
 
 /// Height of one monospace line in `mono_view`.
@@ -187,22 +216,9 @@ pub fn table(cols: &[Col], list: UniformList, handle: &UniformListScrollHandle, 
     frame(cols, virtual_list(list, handle, false).into_any_element(), cx)
 }
 
-/// The same frame and header with a message instead of rows (no data, no match, errors).
-pub fn table_empty(cols: &[Col], text: impl Into<SharedString>, cx: &App) -> impl IntoElement {
-    frame(
-        cols,
-        div()
-            .size_full()
-            .flex()
-            .justify_center()
-            .pt_10()
-            .px_6()
-            .text_sm()
-            .text_color(cx.theme().muted_foreground)
-            .child(text.into())
-            .into_any_element(),
-        cx,
-    )
+/// The same frame and header with an `empty_state` instead of rows (no data, no match, errors).
+pub fn table_empty(cols: &[Col], title: impl Into<SharedString>, hint: impl Into<SharedString>, cx: &App) -> impl IntoElement {
+    frame(cols, empty_state(title, hint, cx).into_any_element(), cx)
 }
 
 fn frame(cols: &[Col], body: AnyElement, cx: &App) -> impl IntoElement {

@@ -382,12 +382,12 @@ impl HostsPage {
 }
 
 const COLS: [Col; 6] = [
-    col("别名 / 备注", 190.),
-    col("地址", 180.),
-    col("认证", 130.),
-    col("跳板 / 标签", 120.),
+    col("别名 / 备注", 180.),
+    col("地址", 170.),
+    col("认证", 140.),
+    col("跳板 / 标签", 110.),
     col_flex("系统"),
-    col_right("操作", 200.),
+    col_right("操作", 190.),
 ];
 
 fn short_path(p: &str) -> String {
@@ -414,16 +414,17 @@ impl Render for HostsPage {
                     .on_click(cx.listener(|this, _, window, cx| this.open_form(None, window, cx))),
             );
         let body: gpui_kit::AnyElement = if let Some(e) = &self.load_error {
-            ui::table_empty(&COLS, format!("读取 hosts.toml 失败：{e}"), cx).into_any_element()
+            ui::table_empty(&COLS, "读取 hosts.toml 失败", e.clone(), cx).into_any_element()
         } else if self.hosts.is_empty() {
             ui::table_empty(
                 &COLS,
-                "还没有主机。点击“添加主机”，或在终端运行 `xssh host import` 导入 ~/.ssh/config。",
+                "还没有主机",
+                "点击“添加主机”，或在终端运行 `xssh host import` 导入 ~/.ssh/config。",
                 cx,
             )
             .into_any_element()
         } else if visible.is_empty() {
-            ui::table_empty(&COLS, "没有匹配的主机", cx).into_any_element()
+            ui::table_empty(&COLS, "没有匹配的主机", "搜索范围包括别名、地址、用户名、标签和备注。", cx).into_any_element()
         } else {
             let visible = Rc::new(visible);
             ui::table(
@@ -447,7 +448,7 @@ impl Render for HostsPage {
             .child(ui::page_header(
                 "主机",
                 format!(
-                    "{} 台已保存的服务器。agent 通过别名使用它们，密码保存在系统凭据管理器中，agent 看不到。",
+                    "{} 台服务器。agent 按别名使用，密码存在系统凭据管理器里，agent 看不到。",
                     self.hosts.len()
                 ),
                 actions,

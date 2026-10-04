@@ -188,10 +188,17 @@ impl IntegrationsPage {
     }
 
     fn render_path_card(&self, cx: &mut Context<Self>) -> impl IntoElement {
-        let hint = if cfg!(windows) {
-            "把本文件夹放到当前用户环境变量 PATH 的最前面（HKCU\\Environment，无需管理员权限）。终端和 agent 可直接运行 `xssh`，不必写完整路径。只对之后启动的程序生效：从开始菜单或 Win+R 打开即可；从已打开的资源管理器文件夹窗口、Windows Terminal 窗口、VS Code 等里启动的仍继承旧 PATH，需先关闭这些窗口（或注销后重新登录）。"
+        // What it does, then when it takes effect: two short paragraphs instead of one long one.
+        let (hint, effect) = if cfg!(windows) {
+            (
+                "把本文件夹放到当前用户环境变量 PATH 的最前面（HKCU\\Environment，无需管理员权限）。终端和 agent 可直接运行 `xssh`，不必写完整路径。",
+                "只对之后启动的程序生效：从开始菜单或 Win+R 打开即可；从已打开的资源管理器文件夹窗口、Windows Terminal 窗口、VS Code 等里启动的仍继承旧 PATH，需先关闭这些窗口（或注销后重新登录）。",
+            )
         } else {
-            "在 ~/.profile（以及 ~/.bash_profile / ~/.zprofile）中加入一段 PATH 设置，把本文件夹放在最前面。重新登录或新开终端后，终端和 agent 可直接运行 `xssh`。"
+            (
+                "在 ~/.profile（以及 ~/.bash_profile / ~/.zprofile）中加入一段 PATH 设置，把本文件夹放在最前面。",
+                "重新登录或新开终端后，终端和 agent 可直接运行 `xssh`。",
+            )
         };
         let status = self.path.as_ref().ok();
         let effective = matches!((&self.cli_dir, status), (Some(d), Some(s)) if s.effective(d));
@@ -249,7 +256,14 @@ impl IntegrationsPage {
                     )
                     .child(button),
             )
-            .child(div().text_xs().text_color(cx.theme().muted_foreground).child(hint))
+            .child(
+                v_flex()
+                    .gap_1()
+                    .text_xs()
+                    .text_color(cx.theme().muted_foreground)
+                    .child(hint)
+                    .child(effect),
+            )
             .child(
                 h_flex()
                     .gap_2()
@@ -272,7 +286,7 @@ fn section_title(title: &str, desc: &str, cx: &App) -> impl IntoElement {
         .flex_1()
         .gap_1()
         .child(div().font_medium().child(title.to_string()))
-        .child(div().text_xs().text_color(cx.theme().muted_foreground).child(desc.to_string()))
+        .child(div().text_xs().truncate().text_color(cx.theme().muted_foreground).child(desc.to_string()))
 }
 
 impl Render for IntegrationsPage {
@@ -299,7 +313,7 @@ impl Render for IntegrationsPage {
             .when(update_all.is_some(), |b| b.outline())
             .on_click(cx.listener(move |this, _, window, cx| this.install(missing.clone(), "安装", window, cx)));
         let table = match &self.home {
-            Err(e) => ui::table_empty(&COLS, ui::error_text(e), cx).into_any_element(),
+            Err(e) => ui::table_empty(&COLS, "无法确定用户主目录", ui::error_text(e), cx).into_any_element(),
             Ok(_) => {
                 let rows = self.rows.clone();
                 ui::table(
@@ -337,7 +351,7 @@ impl Render for IntegrationsPage {
                     .items_end()
                     .child(section_title(
                         "AI 编程工具 Skill",
-                        "安装后，agent 遇到与远程服务器相关的任务会自动使用 xssh。Skill 内容即 `xssh guide`；xssh 未加入 PATH 时还会写明本机 xssh 的完整路径，已加入则省略以节省 agent 上下文。升级、移动 xssh 或加入 / 移出 PATH 后，状态会显示“需更新”，点“全部更新”即可。",
+                        "agent 处理远程服务器任务时自动使用 xssh；升级、移动 xssh 或改动 PATH 后需更新。",
                         cx,
                     ))
                     .child(h_flex().gap_2().children(update_all).child(install_all)),

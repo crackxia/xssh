@@ -9956,7 +9956,7 @@ checksum = "ec7a2a501ed189703dba8b08142f057e887dfc4b2cc4db2d343ac6376ba3e0b9"
 
 [[package]]
 name = "xssh"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "base64",
  "clap",
@@ -9977,7 +9977,7 @@ dependencies = [
 
 [[package]]
 name = "xssh-core"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "chrono",
  "encoding_rs",
@@ -10001,7 +10001,7 @@ dependencies = [
 
 [[package]]
 name = "xssh-desktop"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "embed-resource",
  "gpui-kit",
@@ -10014,7 +10014,7 @@ dependencies = [
 
 [[package]]
 name = "xssh-engine"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "base64",
  "chrono",
@@ -10040,7 +10040,7 @@ dependencies = [
 
 [[package]]
 name = "xssh-store"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "argon2",
  "chacha20poly1305",
