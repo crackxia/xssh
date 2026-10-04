@@ -38,7 +38,7 @@ const en = {
 
 	desktopH: "A desktop manager for the human",
 	desktopP: "Hosts, sessions, forwards, jobs, audit log and daemon in one window. Watching never disturbs the agent.",
-	desktopNote: "Interface preview with sample data. The app's interface is in Chinese.",
+	desktopNote: "Interface preview with sample data. The app speaks English and Chinese; switch at the bottom of the sidebar.",
 
 	cols: { command: "Command", does: "What it does", state: "State", line: "Status line", meaning: "Meaning" },
 
@@ -143,7 +143,7 @@ const zh: Strings = {
 
 	desktopH: "给人用的桌面管理器",
 	desktopP: "主机、会话、端口转发、后台任务、审计日志和守护进程，一个窗口管理。查看会话不会打扰 agent。",
-	desktopNote: "界面示意，数据为示例。",
+	desktopNote: "界面示意，数据为示例。应用支持中英文，在侧栏底部切换。",
 
 	cols: { command: "命令", does: "作用", state: "状态", line: "状态行", meaning: "含义" },
 

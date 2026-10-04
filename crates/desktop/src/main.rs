@@ -5,6 +5,7 @@
 
 mod app;
 mod backend;
+mod i18n;
 mod model;
 mod pages;
 mod ui;
@@ -30,6 +31,7 @@ fn main() {
     };
     gpui_kit::application().with_assets(gpui_kit::assets::Assets).run(move |cx| {
         gpui_kit::init(cx);
+        i18n::init(&backend.paths.home);
         gpui_kit::component::Theme::sync_system_appearance(None, cx);
         // Closing the window quits the app; the daemon keeps running on its own.
         cx.on_window_closed(|cx, _| {

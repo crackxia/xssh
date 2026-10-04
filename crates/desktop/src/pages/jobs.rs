@@ -2,6 +2,7 @@
 
 use crate::app::row_button;
 use crate::backend::Backend;
+use crate::i18n::{t, tf};
 use crate::ui::{self, Col, col, col_flex, col_right};
 use gpui_kit::base::{Disableable as _, StyledExt as _};
 use gpui_kit::component::button::{Button, ButtonVariant};
@@ -20,12 +21,12 @@ use xssh_core::api::Request;
 use xssh_store::jobs::JobRecord;
 
 const COLS: [Col; 6] = [
-    col("任务", 170.),
-    col("主机", 110.),
-    col_flex("命令"),
-    col("启动时间", 130.),
-    col("状态", 100.),
-    col_right("操作", 110.),
+    col("任务", "Job", 170.),
+    col("主机", "Host", 110.),
+    col_flex("命令", "Command"),
+    col("启动时间", "Started", 130.),
+    col("状态", "State", 100.),
+    col_right("操作", "Actions", 110.),
 ];
 
 pub struct JobsPage {
@@ -77,7 +78,7 @@ impl JobsPage {
                             .collect();
                     }
                     Ok(_) => {}
-                    Err(e) => ui::notify_error(window, cx, "查询任务状态失败", &e),
+                    Err(e) => ui::notify_error(window, cx, t("查询任务状态失败", "Cannot query job states"), &e),
                 }
                 this.reload(cx);
             });
@@ -102,7 +103,7 @@ impl JobsPage {
                     scroll.scroll_to_bottom();
                     window.open_dialog(cx, move |dialog, _, cx| {
                         dialog
-                            .title(format!("任务 {id} 日志（{}）", state_label(&state)))
+                            .title(tf!("任务 {id} 日志（{}）", "Job {id} log ({})", state_label(&state)))
                             .w(px(900.))
                             .child(
                                 div()
@@ -111,14 +112,14 @@ impl JobsPage {
                                     .rounded(cx.theme().radius)
                                     .bg(cx.theme().muted)
                                     .child(if lines.is_empty() {
-                                        ui::empty("日志为空", cx).into_any_element()
+                                        ui::empty(t("日志为空", "The log is empty"), cx).into_any_element()
                                     } else {
                                         ui::mono_view("job-log", lines.clone(), &scroll, cx).into_any_element()
                                     }),
                             )
                     });
                 }
-                Err(e) => ui::notify_error(window, cx, "读取日志失败", &e),
+                Err(e) => ui::notify_error(window, cx, t("读取日志失败", "Cannot read the log"), &e),
             });
         })
         .detach();
@@ -129,12 +130,17 @@ impl JobsPage {
         window.open_alert_dialog(cx, move |alert, _, _| {
             let (page, rec) = (page.clone(), rec.clone());
             alert
-                .title(format!("终止任务 {}？", rec.name.clone().unwrap_or(rec.id.clone())))
-                .description(format!("向 {} 上的进程组发送 TERM：{}", rec.host, rec.command))
+                .title(tf!("终止任务 {}？", "Kill job {}?", rec.name.clone().unwrap_or(rec.id.clone())))
+                .description(tf!(
+                    "向 {} 上的进程组发送 TERM：{}",
+                    "Sends TERM to its process group on {}: {}",
+                    rec.host,
+                    rec.command
+                ))
                 .confirm()
-                .ok_text("终止")
+                .ok_text(t("终止", "Kill"))
                 .ok_variant(ButtonVariant::Danger)
-                .cancel_text("取消")
+                .cancel_text(t("取消", "Cancel"))
                 .on_ok(move |_, window, cx| {
                     let id = rec.id.clone();
                     let _ = page.update(cx, |p, cx| {
@@ -143,8 +149,8 @@ impl JobsPage {
                             let r = fut.await;
                             let _ = this.update_in(cx, |this, window, cx| {
                                 match r {
-                                    Ok(_) => ui::notify_ok(window, cx, "已发送终止信号"),
-                                    Err(e) => ui::notify_error(window, cx, "终止失败", &e),
+                                    Ok(_) => ui::notify_ok(window, cx, t("已发送终止信号", "TERM sent")),
+                                    Err(e) => ui::notify_error(window, cx, t("终止失败", "Kill failed"), &e),
                                 }
                                 this.check(window, cx);
                             });
@@ -161,13 +167,17 @@ impl JobsPage {
         let muted = cx.theme().muted_foreground;
         // Unknown until queried: plain muted text, so the tags that do show carry news.
         let status = match state.map(|s| s.0.as_str()) {
-            None => div().text_xs().text_color(muted).child("未查询").into_any_element(),
+            None => div()
+                .text_xs()
+                .text_color(muted)
+                .child(t("未查询", "Not queried"))
+                .into_any_element(),
             Some(st) => match st {
-                "running" => Tag::info().child("运行中"),
+                "running" => Tag::info().child(t("运行中", "Running")),
                 "exited" => match state.and_then(|s| s.1) {
-                    Some(0) => Tag::success().child("完成 0"),
-                    Some(c) => Tag::danger().child(format!("退出 {c}")),
-                    None => Tag::success().child("已结束"),
+                    Some(0) => Tag::success().child(t("完成 0", "Done 0")),
+                    Some(c) => Tag::danger().child(tf!("退出 {c}", "Exit {c}")),
+                    None => Tag::success().child(t("已结束", "Ended")),
                 },
                 s => Tag::warning().child(state_label(s)),
             }
@@ -180,11 +190,11 @@ impl JobsPage {
             .gap_1()
             .child({
                 let id = id.clone();
-                row_button(SharedString::from(format!("log-{id}")), "日志")
+                row_button(SharedString::from(format!("log-{id}")), t("日志", "Log"))
                     .on_click(cx.listener(move |this, _, window, cx| this.show_logs(id.clone(), window, cx)))
             })
             .child(
-                row_button(SharedString::from(format!("kill-{id}")), "终止")
+                row_button(SharedString::from(format!("kill-{id}")), t("终止", "Kill"))
                     .on_click(cx.listener(move |this, _, window, cx| this.confirm_kill(rec.clone(), window, cx))),
             );
         ui::table_row(
@@ -193,7 +203,13 @@ impl JobsPage {
                 h_flex()
                     .min_w_0()
                     .gap_1p5()
-                    .child(div().min_w_0().truncate().font_medium().child(r.name.clone().unwrap_or(r.id.clone())))
+                    .child(
+                        div()
+                            .min_w_0()
+                            .truncate()
+                            .font_medium()
+                            .child(r.name.clone().unwrap_or(r.id.clone())),
+                    )
                     .when(r.name.is_some(), |this| {
                         this.child(div().flex_none().text_xs().text_color(muted).child(r.id.clone()))
                     })
@@ -219,11 +235,11 @@ impl JobsPage {
 
 fn state_label(s: &str) -> &'static str {
     match s {
-        "running" => "运行中",
-        "exited" => "已结束",
-        "killed" => "已终止",
-        "lost" => "丢失",
-        _ => "未知",
+        "running" => t("运行中", "running"),
+        "exited" => t("已结束", "ended"),
+        "killed" => t("已终止", "killed"),
+        "lost" => t("丢失", "lost"),
+        _ => t("未知", "unknown"),
     }
 }
 
@@ -232,15 +248,18 @@ impl Render for JobsPage {
         let actions = Button::new("jobs-check")
             .outline()
             .icon(IconName::RefreshCw)
-            .label("查询状态")
+            .label(t("查询状态", "Query states"))
             .loading(self.checking)
             .disabled(self.checking)
             .on_click(cx.listener(|this, _, window, cx| this.check(window, cx)));
         let body = if self.records.is_empty() {
             ui::table_empty(
                 &COLS,
-                "没有后台任务",
-                "agent 用 `xssh job start <主机> -- <命令>` 启动的长任务会出现在这里；任务在远端运行，点“查询状态”连接主机获取最新状态。",
+                t("没有后台任务", "No background jobs"),
+                t(
+                    "agent 用 `xssh job start <主机> -- <命令>` 启动的长任务会出现在这里；任务在远端运行，点“查询状态”连接主机获取最新状态。",
+                    "Long jobs agents start with `xssh job start <host> -- <command>` show up here. They run on the remote host; Query states connects to fetch their latest state.",
+                ),
                 cx,
             )
             .into_any_element()
@@ -265,8 +284,12 @@ impl Render for JobsPage {
             .p_6()
             .gap_4()
             .child(ui::page_header(
-                "后台任务",
-                format!("{} 个任务。任务在远端独立运行，不受守护进程或本程序影响。", self.records.len()),
+                t("后台任务", "Jobs"),
+                tf!(
+                    "{} 个任务。任务在远端独立运行，不受守护进程或本程序影响。",
+                    "{} jobs. They run on their own remotely, unaffected by the daemon or this app.",
+                    self.records.len()
+                ),
                 actions,
                 cx,
             ))

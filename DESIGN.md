@@ -268,7 +268,7 @@ Drawn like the app's session detail: the session name (16px/600) and its state t
 
 ### Desktop Manager Replica (signature)
 An HTML rebuild of xssh-desktop. It has a 36px title bar with window controls, a 172px panel-grey sidebar (Hosts / Sessions / Audit buttons, other items static, and a connected-status foot), and a main pane with a title, search and tables. The sidebar buttons switch views (`data-view` / `data-pane`). That is the signature interaction.
-- It is in Chinese on both language pages because the app's UI is Chinese-only. The English note under it says so.
+- It speaks the page's language, like the bilingual app: English at `/`, Chinese at `/zh/` (`data-lang` on `.app`; English widens the hosts actions column). Its sidebar foot shows the app's language switch, current language highlighted.
 - Its data is sample data from documentation IP ranges only (192.0.2.x, 198.51.100.x, 203.0.113.x). It is labelled as an interface preview. Never put real hosts, IPs or names in it.
 - At ≤720px the sidebar becomes a tab strip, and tables drop columns (see Layout).
 
@@ -302,4 +302,4 @@ English at `/`, Chinese at `/zh/`. A `/zh/` URL is always served (explicit choic
 - **Don't** set tag text in the border colour, or fill status tags.
 - **Don't** self-host or import a display or mono web font. Use the system UI sans and Consolas-class mono.
 - **Don't** put real hosts, IPs or user names in the replica or any sample. Use documentation ranges.
-- **Don't** translate the replica's interface into English. It mirrors the Chinese-only app.
+- **Don't** mix languages inside the replica. Every label it shows comes from the app's own Chinese or English text.

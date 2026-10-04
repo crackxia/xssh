@@ -1,5 +1,6 @@
 //! Small presentation helpers shared by the pages.
 
+use crate::i18n::{t, tf};
 use gpui_kit::base::StyledExt as _;
 use gpui_kit::component::notification::Notification;
 use gpui_kit::component::scroll::Scrollbar;
@@ -12,13 +13,13 @@ use gpui_kit::{
 use std::rc::Rc;
 use xssh_core::Error;
 
-/// "3 秒" / "5 分" / "2 小时 10 分" / "3 天".
+/// "3 秒" / "5 分" / "2 小时 10 分" / "3 天 4 小时" (English: "3 s" / "5 min" / "2 h 10 min" / "3 d 4 h").
 pub fn human_secs(s: u64) -> String {
     match s {
-        0..60 => format!("{s} 秒"),
-        60..3600 => format!("{} 分", s / 60),
-        3600..86400 => format!("{} 小时 {} 分", s / 3600, s % 3600 / 60),
-        _ => format!("{} 天 {} 小时", s / 86400, s % 86400 / 3600),
+        0..60 => tf!("{s} 秒", "{s} s"),
+        60..3600 => tf!("{} 分", "{} min", s / 60),
+        3600..86400 => tf!("{} 小时 {} 分", "{} h {} min", s / 3600, s % 3600 / 60),
+        _ => tf!("{} 天 {} 小时", "{} d {} h", s / 86400, s % 86400 / 3600),
     }
 }
 
@@ -59,7 +60,13 @@ pub fn page_header(title: &str, subtitle: impl Into<SharedString>, actions: impl
                 .min_w_0()
                 .gap_1()
                 .child(div().text_xl().font_semibold().child(title.to_string()))
-                .child(div().text_sm().truncate().text_color(cx.theme().muted_foreground).child(subtitle.into())),
+                .child(
+                    div()
+                        .text_sm()
+                        .truncate()
+                        .text_color(cx.theme().muted_foreground)
+                        .child(subtitle.into()),
+                ),
         )
         .child(h_flex().flex_none().gap_2().child(actions))
 }
@@ -169,32 +176,33 @@ pub fn at_end(handle: &UniformListScrollHandle) -> bool {
 }
 
 /// A column of a virtualized table: fixed width, or the remaining space when `width` is None.
+/// The title is a (Chinese, English) pair.
 #[derive(Clone, Copy)]
 pub struct Col {
-    pub title: &'static str,
+    pub title: (&'static str, &'static str),
     pub width: Option<f32>,
     pub right: bool,
 }
 
-pub const fn col(title: &'static str, width: f32) -> Col {
+pub const fn col(zh: &'static str, en: &'static str, width: f32) -> Col {
     Col {
-        title,
+        title: (zh, en),
         width: Some(width),
         right: false,
     }
 }
 
-pub const fn col_flex(title: &'static str) -> Col {
+pub const fn col_flex(zh: &'static str, en: &'static str) -> Col {
     Col {
-        title,
+        title: (zh, en),
         width: None,
         right: false,
     }
 }
 
-pub const fn col_right(title: &'static str, width: f32) -> Col {
+pub const fn col_right(zh: &'static str, en: &'static str, width: f32) -> Col {
     Col {
-        title,
+        title: (zh, en),
         width: Some(width),
         right: true,
     }
@@ -234,7 +242,7 @@ fn frame(cols: &[Col], body: AnyElement, cx: &App) -> impl IntoElement {
         .text_color(cx.theme().muted_foreground)
         .border_b_1()
         .border_color(cx.theme().border)
-        .children(cols.iter().map(|c| cell(*c, c.title.into_any_element())));
+        .children(cols.iter().map(|c| cell(*c, t(c.title.0, c.title.1).into_any_element())));
     // Only the top corners follow the frame (1px inside its border).
     let inner = gpui_kit::AbsoluteLength::Pixels((radius - px(1.)).max(px(0.)));
     header.style().corner_radii.top_left = Some(inner);

@@ -33,6 +33,8 @@
 | 守护进程 | 状态、SSH 连接、启动/停止/重启（有确认）、守护进程日志 |
 | 集成 | 把 xssh 所在文件夹放到 PATH 最前面（Windows 写当前用户的 `HKCU\Environment\Path`，保留原值类型并广播 `WM_SETTINGCHANGE`；Unix 写登录脚本里带标记的一段），并按新进程的 PATH 顺序检查 `xssh` 实际解析到哪个文件，被其他副本覆盖时给出提示；为 Claude Code、Codex、Gemini CLI、GitHub Copilot、Cursor、OpenCode、Windsurf、Amp、Qwen Code、Kiro、Trae、Roo Code、`~/.agents`（Cline 等）安装 / 更新 / 移除 xssh skill，自动检测本机装了哪些工具 |
 
+界面支持简体中文和英文：首次启动跟随系统语言，侧栏底部可随时切换，选择保存在数据目录的 `desktop.json` 中。
+
 窗口无边框、标题栏自绘（gpui-kit `TitleBar`）：拖动、双击最大化、边缘缩放以及 Windows 11 最大化按钮上的贴靠布局都由系统照常处理。
 
 它和 CLI 一样只是守护进程的客户端：

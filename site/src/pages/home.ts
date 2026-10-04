@@ -37,29 +37,31 @@ const STATE_TAG: Record<string, string> = { done: "ok", waiting: "wait", running
 // Lucide outlines, as the desktop app draws its navigation.
 const ico = (d: string, size = 14) =>
 	`<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
-const NAV: [string, string, string?][] = [
-	["主机", `<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20M2 12h20"/>`, "hosts"],
-	["会话", `<path d="m7 11 2-2-2-2M11 13h4"/><rect width="18" height="18" x="3" y="3" rx="2"/>`, "sessions"],
-	["端口转发", `<rect x="16" y="16" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="9" y="2" width="6" height="6" rx="1"/><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3M12 12V8"/>`],
-	["后台任务", `<rect width="16" height="16" x="4" y="4" rx="2"/><rect width="6" height="6" x="9" y="9" rx="1"/><path d="M15 2v2M15 20v2M2 15h2M2 9h2M20 15h2M20 9h2M9 2v2M9 20v2"/>`],
-	["审计日志", `<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4M16 13H8M16 17H8M10 9H8"/>`, "audit"],
-	["守护进程", `<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>`],
-	["集成", `<path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2M20 14h2M15 13v2M9 13v2"/>`],
+const NAV: [string, string, string, string?][] = [
+	["主机", "Hosts", `<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20M2 12h20"/>`, "hosts"],
+	["会话", "Sessions", `<path d="m7 11 2-2-2-2M11 13h4"/><rect width="18" height="18" x="3" y="3" rx="2"/>`, "sessions"],
+	["端口转发", "Port forwards", `<rect x="16" y="16" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="9" y="2" width="6" height="6" rx="1"/><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3M12 12V8"/>`],
+	["后台任务", "Jobs", `<rect width="16" height="16" x="4" y="4" rx="2"/><rect width="6" height="6" x="9" y="9" rx="1"/><path d="M15 2v2M15 20v2M2 15h2M2 9h2M20 15h2M20 9h2M9 2v2M9 20v2"/>`],
+	["审计日志", "Audit log", `<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4M16 13H8M16 17H8M10 9H8"/>`, "audit"],
+	["守护进程", "Daemon", `<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>`],
+	["集成", "Integrations", `<path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2M20 14h2M15 13v2M9 13v2"/>`],
 ];
 
-// Sample data for the replica (documentation address ranges, invented names).
-const HOSTS: [string, string, string, string, string[], string, string][] = [
-	["web1", "生产 Web 前端", "deploy@192.0.2.10", "密钥 id_ed25519", ["prod", "web"], "Ubuntu 24.04.1 LTS", "10-04 09:12:03"],
-	["db", "PostgreSQL 16 主库", "deploy@192.0.2.20", "密码 · sudo", ["prod", "db"], "Debian GNU/Linux 12", "10-04 09:10:41"],
-	["staging", "", "ubuntu@198.51.100.7", "密钥 staging.pem", ["staging"], "Ubuntu 22.04.5 LTS", "10-03 18:22:15"],
-	["nas", "备份存储", "admin@203.0.113.5:2222", "agent / 默认密钥", ["经 web1", "backup"], "FreeBSD 14.1-RELEASE", "10-02 21:04:56"],
+// Sample data for the replica (documentation address ranges, invented names). Text the app
+// translates is a [Chinese, English] pair.
+type T = [string, string];
+const HOSTS: [string, T, string, T, (string | T)[], string, string][] = [
+	["web1", ["生产 Web 前端", "Web front end"], "deploy@192.0.2.10", ["密钥 id_ed25519", "key id_ed25519"], ["prod", "web"], "Ubuntu 24.04.1 LTS", "10-04 09:12:03"],
+	["db", ["PostgreSQL 16 主库", "Postgres primary"], "deploy@192.0.2.20", ["密码 · sudo", "password · sudo"], ["prod", "db"], "Debian GNU/Linux 12", "10-04 09:10:41"],
+	["staging", ["", ""], "ubuntu@198.51.100.7", ["密钥 staging.pem", "key staging.pem"], ["staging"], "Ubuntu 22.04.5 LTS", "10-03 18:22:15"],
+	["nas", ["备份存储", "Backup storage"], "admin@203.0.113.5:2222", ["agent / 默认密钥", "agent / default"], [["经 web1", "via web1"], "backup"], "FreeBSD 14.1-RELEASE", "10-02 21:04:56"],
 ];
-const AUDIT: [string, string, string, string, string | null, string][] = [
+const AUDIT: [string, string, string, string, T | null, string][] = [
 	["10-04 09:12:03", "exec", "web1", "sudo apt-get upgrade", null, "41.2 s"],
 	["10-04 09:10:41", "cp", "db", "./backup.sql → db:/var/backups/", null, "3.4 s"],
 	["10-04 09:09:15", "exec", "db", "[sudo] systemctl restart postgresql", null, "2.1 s"],
 	["10-04 09:05:52", "file_edit", "web1", "/srv/app/.env", null, "180 ms"],
-	["10-04 09:01:30", "exec", "staging", "npm test", "退出 1", "12.8 s"],
+	["10-04 09:01:30", "exec", "staging", "npm test", ["退出 1", "Exit 1"], "12.8 s"],
 	["10-04 08:58:07", "job_start", "web1", "./deploy.sh --tag v2.3.1", null, "0.9 s"],
 	["10-04 08:41:19", "session_run", "web1", "cd /srv/app ↵ git pull --ff-only", null, "1.6 s"],
 ];
@@ -74,9 +76,11 @@ const SCREEN = [
 	"deploy@web1:/srv/app$ ",
 ];
 
-/** xssh-desktop, rebuilt in HTML: the sidebar switches between three of its pages. */
-function desktop(note: string): string {
-	const nav = NAV.map(([label, path, view]) => {
+/** xssh-desktop, rebuilt in HTML in the page's language: the sidebar switches between three of its pages. */
+function desktop(lang: Lang, note: string): string {
+	const L = (zh: string, en: string) => (lang === "en" ? en : zh);
+	const nav = NAV.map(([zh, en, path, view]) => {
+		const label = L(zh, en);
 		const n = view === "sessions" ? `<span class="n">1</span>` : "";
 		return view
 			? `<button type="button" data-view="${view}"${view === "hosts" ? ' aria-current="true"' : ""}>${ico(path)}<span>${label}</span>${n}</button>`
@@ -87,51 +91,52 @@ function desktop(note: string): string {
 	const search = (placeholder: string) => `<span class="app-search">${placeholder}</span>`;
 	const refresh = `<span class="app-icon-btn">${ico(`<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>`)}</span>`;
 	const hosts = HOSTS.map(
-		([alias, note, addr, auth, tags, os, last]) => `<div class="tbl-row">
-  <div class="clip"><strong>${esc(alias)}</strong>${note ? `<span class="sub">${esc(note)}</span>` : ""}</div>
+		([alias, [noteZh, noteEn], addr, auth, tags, os, last]) => `<div class="tbl-row">
+  <div class="clip"><strong>${esc(alias)}</strong>${noteZh ? `<span class="sub">${esc(L(noteZh, noteEn))}</span>` : ""}</div>
   <div class="clip">${esc(addr)}</div>
-  <div class="clip">${esc(auth)}</div>
-  <div class="tags">${tags.map((t) => `<span class="tag ${t.startsWith("经") ? "run" : "grey"}">${esc(t)}</span>`).join("")}</div>
-  <div class="clip">${esc(os)}<span class="sub">最近连通 ${esc(last)}</span></div>
-  <div class="acts"><span>测试</span><span>编辑</span><span>凭据</span><span>删除</span></div>
+  <div class="clip">${esc(L(...auth))}</div>
+  <div class="tags">${tags.map((t) => (typeof t === "string" ? `<span class="tag grey">${esc(t)}</span>` : `<span class="tag run">${esc(L(...t))}</span>`)).join("")}</div>
+  <div class="clip">${esc(os)}<span class="sub">${L("最近连通", "last ok")} ${esc(last)}</span></div>
+  <div class="acts"><span>${L("测试", "Test")}</span><span>${L("编辑", "Edit")}</span><span>${L("凭据", "Secrets")}</span><span>${L("删除", "Delete")}</span></div>
 </div>`,
 	).join("");
 	const audit = AUDIT.map(
 		([ts, act, host, what, bad, took]) => `<div class="tbl-row">
   <div class="clip">${esc(ts)}</div><div class="clip">${esc(act)}</div><div class="clip">${esc(host)}</div>
   <div class="clip mono">${esc(what)}</div>
-  <div>${bad ? `<span class="tag wait">${esc(bad)}</span>` : `<span class="dim">成功</span>`}</div>
+  <div>${bad ? `<span class="tag wait">${esc(L(...bad))}</span>` : `<span class="dim">${L("成功", "OK")}</span>`}</div>
   <div class="r">${esc(took)}</div>
 </div>`,
 	).join("");
 	const head = (cols: string[]) => `<div class="tbl-head">${cols.map((c) => `<span>${c}</span>`).join("")}</div>`;
-	return `<div class="app" role="group" aria-label="xssh desktop">
+	return `<div class="app" data-lang="${lang}" role="group" aria-label="xssh desktop">
   <div class="app-bar"><img src="/icon.svg" alt="" width="16" height="16"><span>xssh</span>
     <span class="app-ctl" aria-hidden="true"><span>${ico(`<path d="M5 12h14"/>`, 13)}</span><span>${ico(`<rect x="5" y="5" width="14" height="14" rx="1"/>`, 12)}</span><span>${ico(`<path d="M6 6l12 12M18 6 6 18"/>`, 13)}</span></span>
   </div>
   <div class="app-body">
     <div class="app-side">
       <nav class="app-nav" aria-label="xssh desktop">${nav}</nav>
-      <div class="app-status"><div class="k"><span class="d"></span>守护进程</div><div>运行中 · 1 会话 · 0 转发</div></div>
+      <div class="app-status"><div class="k"><span class="d"></span>${L("守护进程", "Daemon")}</div><div>${L("运行中 · 1 会话 · 0 转发", "Running · 1 sess · 0 fwd")}</div></div>
+      <div class="app-lang"><span${lang === "zh" ? ' class="on"' : ""}>中文</span><span${lang === "en" ? ' class="on"' : ""}>English</span></div>
     </div>
     <section class="app-main" data-pane="hosts">
-      ${title("主机", "4 台服务器。agent 按别名使用，密码存在系统凭据管理器里，agent 看不到。", `${search("搜索别名、地址、标签或备注")}${refresh}<span class="btn primary">${ico(`<path d="M5 12h14M12 5v14"/>`, 13)}添加主机</span>`)}
-      <div class="tbl hosts">${head(["别名 / 备注", "地址", "认证", "跳板 / 标签", "系统", ""])}${hosts}</div>
+      ${title(L("主机", "Hosts"), L("4 台服务器。agent 按别名使用，密码存在系统凭据管理器里，agent 看不到。", "4 servers. Agents use aliases; passwords stay in the system keyring."), `${search(L("搜索别名、地址、标签或备注", "Search alias, address, tag or note"))}${refresh}<span class="btn primary">${ico(`<path d="M5 12h14M12 5v14"/>`, 13)}${L("添加主机", "Add host")}</span>`)}
+      <div class="tbl hosts">${head([L("别名 / 备注", "Alias / note"), L("地址", "Address"), L("认证", "Auth"), L("跳板 / 标签", "Jump / tags"), L("系统", "System"), ""])}${hosts}</div>
     </section>
     <section class="app-main" data-pane="sessions" hidden>
-      ${title("会话", "1 个交互式会话，由 agent 通过 `xssh session` 打开。这里只读查看。")}
+      ${title(L("会话", "Sessions"), L("1 个交互式会话，由 agent 通过 `xssh session` 打开。这里只读查看。", "1 interactive session opened by agents with `xssh session`. Read-only here."))}
       <div class="sessions">
-        <div class="s-list"><div class="s-card"><div class="row">w <span class="tag ok">空闲</span></div><p>web1 · 空闲 12 秒</p><p class="cmd">运行：bash</p><p>最近输入：sudo apt-get upgrade</p></div></div>
+        <div class="s-list"><div class="s-card"><div class="row">w <span class="tag ok">${L("空闲", "Idle")}</span></div><p>${L("web1 · 空闲 12 秒", "web1 · idle 12 s")}</p><p class="cmd">${L("运行：bash", "Running: bash")}</p><p>${L("最近输入：", "Last input: ")}sudo apt-get upgrade</p></div></div>
         <div class="s-detail">
-          <div class="app-title"><div><h3>w <span class="tag ok">空闲</span></h3><p>web1 · 120×32 · 创建于 10-04 09:08:51</p></div></div>
+          <div class="app-title"><div><h3>w <span class="tag ok">${L("空闲", "Idle")}</span></h3><p>web1 · 120×32 · ${L("创建于", "opened")} 10-04 09:08:51</p></div></div>
           <pre>${SCREEN.map(esc).join("\n")}</pre>
-          <p class="note">只读查看：不会向会话发送任何输入，也不影响 agent 的读取进度。</p>
+          <p class="note">${L("只读查看：不会向会话发送任何输入，也不影响 agent 的读取进度。", "Read-only: nothing is sent to the session, and the agent's reading position is unaffected.")}</p>
         </div>
       </div>
     </section>
     <section class="app-main" data-pane="audit" hidden>
-      ${title("审计日志", "最近 7 条远程操作（最新在前），来自 audit.jsonl。点击一行查看完整命令。", `${search("筛选主机、动作或命令")}${refresh}`)}
-      <div class="tbl audit">${head(["时间", "动作", "主机", "内容", "结果", '<span class="r">耗时</span>'])}${audit}</div>
+      ${title(L("审计日志", "Audit log"), L("最近 7 条远程操作（最新在前），来自 audit.jsonl。点击一行查看完整命令。", "Last 7 remote operations, newest first. Click a row for the full command."), `${search(L("筛选主机、动作或命令", "Filter by host, action or command"))}${refresh}`)}
+      <div class="tbl audit">${head([L("时间", "Time"), L("动作", "Action"), L("主机", "Host"), L("内容", "Command / target"), L("结果", "Result"), `<span class="r">${L("耗时", "Took")}</span>`])}${audit}</div>
     </section>
   </div>
 </div>
@@ -219,7 +224,7 @@ export function home(lang: Lang, m: Manifest): string {
 
 <section class="wrap block" aria-labelledby="h-desktop">
   <div class="head"><h2 id="h-desktop">${esc(t.desktopH)}</h2><p>${esc(t.desktopP)}</p></div>
-  ${desktop(t.desktopNote)}
+  ${desktop(lang, t.desktopNote)}
 </section>
 
 <section class="wrap block" aria-labelledby="h-commands">

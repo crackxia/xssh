@@ -6,6 +6,7 @@
 //! forces a version restart (that would drop agents' sessions), and its polling does not keep an
 //! idle daemon alive. Closing the app leaves the daemon untouched.
 
+use crate::i18n::{t, tf};
 use serde_json::Value;
 use std::collections::HashMap;
 use std::future::Future;
@@ -40,9 +41,9 @@ pub enum SecretKind {
 impl SecretKind {
     pub fn label(self) -> &'static str {
         match self {
-            SecretKind::Password => "登录密码",
-            SecretKind::Sudo => "sudo 密码",
-            SecretKind::Passphrase => "私钥口令",
+            SecretKind::Password => t("登录密码", "Login password"),
+            SecretKind::Sudo => t("sudo 密码", "sudo password"),
+            SecretKind::Passphrase => t("私钥口令", "Key passphrase"),
         }
     }
 
@@ -137,12 +138,15 @@ impl Backend {
             Some(orig) => {
                 store.update(|hosts| {
                     if orig != host.alias && hosts.iter().any(|h| h.alias == host.alias) {
-                        return Err(Error::new(ErrorCode::AlreadyExists, format!("主机别名 '{}' 已存在", host.alias)));
+                        return Err(Error::new(
+                            ErrorCode::AlreadyExists,
+                            tf!("主机别名 '{}' 已存在", "host alias '{}' already exists", host.alias),
+                        ));
                     }
                     let h = hosts
                         .iter_mut()
                         .find(|h| h.alias == orig)
-                        .ok_or_else(|| Error::not_found(format!("主机 '{orig}' 不存在")))?;
+                        .ok_or_else(|| Error::not_found(tf!("主机 '{orig}' 不存在", "host '{orig}' not found")))?;
                     // The form edits only these fields; keep the rest (facts, proxy command,
                     // extra keys, policies, expiry...).
                     *h = Host {
@@ -268,10 +272,10 @@ fn run<T: Send + 'static>(f: impl Future<Output = Result<T>> + Send + 'static) -
 }
 
 pub fn is_not_running(e: &Error) -> bool {
-    e.code == ErrorCode::Daemon && e.message == NOT_RUNNING
+    e.code == ErrorCode::Daemon && (e.message == NOT_RUNNING.0 || e.message == NOT_RUNNING.1)
 }
 
-const NOT_RUNNING: &str = "守护进程未运行";
+const NOT_RUNNING: (&str, &str) = ("守护进程未运行", "the daemon is not running");
 
 async fn observe(paths: &Paths, req: &Request) -> Result<Value> {
     let mut retries = 0;
@@ -284,11 +288,19 @@ async fn observe(paths: &Paths, req: &Request) -> Result<Value> {
                 tokio::time::sleep(Duration::from_millis(100)).await;
             }
             Err(CallError::Failed(e)) => return Err(e),
-            Err(CallError::NotRunning) => return Err(Error::new(ErrorCode::Daemon, NOT_RUNNING)),
+            Err(CallError::NotRunning) => return Err(Error::new(ErrorCode::Daemon, t(NOT_RUNNING.0, NOT_RUNNING.1))),
             Err(CallError::VersionMismatch) => {
-                return Err(
-                    Error::new(ErrorCode::Daemon, "守护进程的协议版本与本程序不同").hint("重启守护进程（会关闭其中的会话和端口转发）")
-                );
+                return Err(Error::new(
+                    ErrorCode::Daemon,
+                    t(
+                        "守护进程的协议版本与本程序不同",
+                        "the daemon speaks a different protocol version than this app",
+                    ),
+                )
+                .hint(t(
+                    "重启守护进程（会关闭其中的会话和端口转发）",
+                    "restart the daemon (this closes its sessions and port forwards)",
+                )));
             }
         }
     }
@@ -313,13 +325,18 @@ async fn start_daemon(paths: &Paths) -> Result<()> {
     cmd.stdin(std::process::Stdio::null());
     #[cfg(windows)]
     cmd.creation_flags(0x0800_0000); // CREATE_NO_WINDOW
-    let out = cmd
-        .output()
-        .await
-        .map_err(|e| Error::io(format!("无法运行 {}: {e}", cli_exe().display())).hint("把 xssh 可执行文件放在本程序旁边或 PATH 中"))?;
+    let out = cmd.output().await.map_err(|e| {
+        Error::io(tf!("无法运行 {}: {e}", "cannot run {}: {e}", cli_exe().display())).hint(t(
+            "把 xssh 可执行文件放在本程序旁边或 PATH 中",
+            "put the xssh executable next to this app or on PATH",
+        ))
+    })?;
     if !out.status.success() {
         let msg = String::from_utf8_lossy(&out.stderr).trim().to_string();
-        return Err(Error::new(ErrorCode::Daemon, format!("启动守护进程失败: {msg}")));
+        return Err(Error::new(
+            ErrorCode::Daemon,
+            tf!("启动守护进程失败: {msg}", "failed to start the daemon: {msg}"),
+        ));
     }
     Ok(())
 }
@@ -332,6 +349,9 @@ async fn stop_daemon(paths: &Paths) -> Result<()> {
         }
         Err(CallError::NotRunning) => Ok(()),
         Err(CallError::Failed(e)) => Err(e),
-        Err(CallError::VersionMismatch) => Err(Error::new(ErrorCode::Daemon, "守护进程拒绝了停止请求")),
+        Err(CallError::VersionMismatch) => Err(Error::new(
+            ErrorCode::Daemon,
+            t("守护进程拒绝了停止请求", "the daemon refused to stop"),
+        )),
     }
 }

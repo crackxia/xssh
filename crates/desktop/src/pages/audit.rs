@@ -2,6 +2,7 @@
 //! scroll smoothly.
 
 use crate::backend::Backend;
+use crate::i18n::{t, tf};
 use crate::ui::{self, Col, col, col_flex, col_right};
 use gpui_kit::component::button::{Button, ButtonVariants as _};
 use gpui_kit::component::input::{Input, InputEvent, InputState};
@@ -18,12 +19,12 @@ use xssh_store::audit::AuditRecord;
 
 const LIMIT: usize = 5000;
 const COLS: [Col; 6] = [
-    col("时间", 130.),
-    col("动作", 120.),
-    col("主机", 110.),
-    col_flex("内容"),
-    col("结果", 90.),
-    col_right("耗时", 80.),
+    col("时间", "Time", 130.),
+    col("动作", "Action", 120.),
+    col("主机", "Host", 110.),
+    col_flex("内容", "Command / target"),
+    col("结果", "Result", 90.),
+    col_right("耗时", "Took", 80.),
 ];
 
 pub struct AuditPage {
@@ -38,7 +39,7 @@ pub struct AuditPage {
 
 impl AuditPage {
     pub fn new(backend: Arc<Backend>, window: &mut Window, cx: &mut Context<Self>) -> Self {
-        let search = cx.new(|cx| InputState::new(window, cx).placeholder("筛选主机、动作或命令"));
+        let search = cx.new(|cx| InputState::new(window, cx).placeholder(t("筛选主机、动作或命令", "Filter by host, action or command")));
         let sub = cx.subscribe(&search, |this, _, e: &InputEvent, cx| {
             if matches!(e, InputEvent::Change) {
                 this.filter(cx);
@@ -98,25 +99,41 @@ fn took(r: &AuditRecord) -> String {
 /// Success is the normal case: plain muted text, so failures and non-zero exits stand out.
 fn result(r: &AuditRecord, cx: &App) -> AnyElement {
     match (r.ok, r.exit_code) {
-        (false, _) => Tag::danger().outline().xsmall().child("失败").into_any_element(),
-        (true, Some(c)) if c != 0 => Tag::warning().outline().xsmall().child(format!("退出 {c}")).into_any_element(),
-        _ => div().text_xs().text_color(cx.theme().muted_foreground).child("成功").into_any_element(),
+        (false, _) => Tag::danger().outline().xsmall().child(t("失败", "Failed")).into_any_element(),
+        (true, Some(c)) if c != 0 => Tag::warning()
+            .outline()
+            .xsmall()
+            .child(tf!("退出 {c}", "Exit {c}"))
+            .into_any_element(),
+        _ => div()
+            .text_xs()
+            .text_color(cx.theme().muted_foreground)
+            .child(t("成功", "OK"))
+            .into_any_element(),
     }
 }
 
 /// Everything recorded for one operation, with the full (multi-line) command.
 fn show_detail(r: &AuditRecord, window: &mut Window, cx: &mut App) {
-    let mut fields: Vec<(&str, String)> = vec![("时间", r.ts.clone()), ("动作", r.action.clone())];
-    fields.extend(r.host.clone().map(|h| ("主机", h)));
-    fields.extend(r.target.clone().map(|t| ("目标", t)));
-    fields.extend(r.exit_code.map(|c| ("退出码", c.to_string())));
-    fields.extend(Some(took(r)).filter(|t| !t.is_empty()).map(|t| ("耗时", t)));
-    fields.extend(r.error.clone().map(|e| ("错误", e)));
-    fields.extend(r.client_pid.map(|p| ("调用进程", p.to_string())));
-    fields.extend(r.client_cwd.clone().map(|c| ("调用目录", c)));
+    let mut fields: Vec<(&str, String)> = vec![(t("时间", "Time"), r.ts.clone()), (t("动作", "Action"), r.action.clone())];
+    fields.extend(r.host.clone().map(|h| (t("主机", "Host"), h)));
+    fields.extend(r.target.clone().map(|v| (t("目标", "Target"), v)));
+    fields.extend(r.exit_code.map(|c| (t("退出码", "Exit code"), c.to_string())));
+    fields.extend(Some(took(r)).filter(|v| !v.is_empty()).map(|v| (t("耗时", "Took"), v)));
+    fields.extend(r.error.clone().map(|e| (t("错误", "Error"), e)));
+    fields.extend(r.client_pid.map(|p| (t("调用进程", "Caller PID"), p.to_string())));
+    fields.extend(r.client_cwd.clone().map(|c| (t("调用目录", "Caller dir"), c)));
     let lines: Rc<Vec<String>> = Rc::new(r.command.as_deref().unwrap_or("").lines().map(String::from).collect());
     let ok = r.ok && r.exit_code.unwrap_or(0) == 0;
-    let title = format!("{} {}", r.action, if ok { "成功" } else { "未成功" });
+    let title = format!(
+        "{} {}",
+        r.action,
+        if ok {
+            t("成功", "succeeded")
+        } else {
+            t("未成功", "did not succeed")
+        }
+    );
     let scroll = UniformListScrollHandle::new();
     window.open_dialog(cx, move |dialog, _, cx| {
         let muted = cx.theme().muted_foreground;
@@ -125,12 +142,14 @@ fn show_detail(r: &AuditRecord, window: &mut Window, cx: &mut App) {
                 .gap_4()
                 .items_start()
                 .text_sm()
-                .child(div().w(px(72.)).flex_none().text_color(muted).child(k.to_string()))
+                .child(div().w(px(80.)).flex_none().text_color(muted).child(k.to_string()))
                 .child(div().min_w_0().flex_1().child(v.clone()))
         }));
-        dialog.title(title.clone()).w(px(760.)).child(
-            v_flex().gap_3().child(list).when(!lines.is_empty(), |this| {
-                this.child(div().text_sm().text_color(muted).child("命令")).child(
+        dialog
+            .title(title.clone())
+            .w(px(760.))
+            .child(v_flex().gap_3().child(list).when(!lines.is_empty(), |this| {
+                this.child(div().text_sm().text_color(muted).child(t("命令", "Command"))).child(
                     div()
                         .h(px((lines.len().min(16) as f32) * 18. + 24.))
                         .p_3()
@@ -138,8 +157,7 @@ fn show_detail(r: &AuditRecord, window: &mut Window, cx: &mut App) {
                         .bg(cx.theme().muted)
                         .child(ui::mono_view("audit-cmd", lines.clone(), &scroll, cx)),
                 )
-            }),
-        )
+            }))
     });
 }
 
@@ -184,12 +202,23 @@ impl Render for AuditPage {
             );
         let body = if self.shown.is_empty() {
             let (title, hint) = if self.records.is_empty() {
-                ("还没有记录", "agent 通过 xssh 在远端执行的命令、传输和文件修改都会记录在这里。")
+                (
+                    t("还没有记录", "Nothing recorded yet"),
+                    t(
+                        "agent 通过 xssh 在远端执行的命令、传输和文件修改都会记录在这里。",
+                        "Commands, transfers and file edits agents run remotely through xssh are recorded here.",
+                    ),
+                )
             } else {
-                ("没有匹配的记录", "筛选范围包括主机、动作、命令和目标路径。")
+                (
+                    t("没有匹配的记录", "No matching records"),
+                    t(
+                        "筛选范围包括主机、动作、命令和目标路径。",
+                        "The filter covers host, action, command and target path.",
+                    ),
+                )
             };
-            ui::table_empty(&COLS, title, hint, cx)
-            .into_any_element()
+            ui::table_empty(&COLS, title, hint, cx).into_any_element()
         } else {
             let (records, shown) = (self.records.clone(), self.shown.clone());
             ui::table(
@@ -207,8 +236,12 @@ impl Render for AuditPage {
             .p_6()
             .gap_4()
             .child(ui::page_header(
-                "审计日志",
-                format!("最近 {} 条远程操作（最新在前），来自 audit.jsonl。点击一行查看完整命令。", self.records.len()),
+                t("审计日志", "Audit log"),
+                tf!(
+                    "最近 {} 条远程操作（最新在前），来自 audit.jsonl。点击一行查看完整命令。",
+                    "Last {} remote operations, newest first. Click a row for the full command.",
+                    self.records.len()
+                ),
                 actions,
                 cx,
             ))

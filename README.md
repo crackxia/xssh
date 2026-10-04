@@ -55,7 +55,8 @@ Already up to date.
   key generation and deployment, audit log, `--json` everywhere, stable exit codes.
 - **Desktop manager** `xssh-desktop` ([gpui-kit](https://github.com/longbridge/gpui-kit)): hosts and
   credentials, live view of agent sessions, forwards, jobs, audit log, daemon control, PATH and
-  agent-skill installation. It is only a client of the daemon: closing it never affects agents.
+  agent-skill installation. English and Simplified Chinese: it follows the system language and
+  switches at the bottom of the sidebar. It is only a client of the daemon: closing it never affects agents.
 
 ## Install
 

@@ -2,6 +2,7 @@
 
 use crate::app::row_button;
 use crate::backend::Backend;
+use crate::i18n::{t, tf};
 use crate::model::DaemonModel;
 use crate::ui::{self, Col, col, col_flex, col_right};
 use gpui_kit::base::Disableable as _;
@@ -61,7 +62,12 @@ impl ForwardsPage {
         let host = self.host.read(cx).selected_value().cloned().unwrap_or_default();
         let spec = self.spec.read(cx).value().trim().to_string();
         if host.is_empty() || spec.is_empty() {
-            ui::notify_error(window, cx, "无法添加", &xssh_core::Error::usage("请选择主机并填写转发规则"));
+            ui::notify_error(
+                window,
+                cx,
+                t("无法添加", "Cannot add"),
+                &xssh_core::Error::usage(t("请选择主机并填写转发规则", "Pick a host and enter a forward rule")),
+            );
             return;
         }
         let (local, remote) = if self.remote { (None, Some(spec)) } else { (Some(spec), None) };
@@ -79,10 +85,14 @@ impl ForwardsPage {
                 this.adding = false;
                 match r {
                     Ok(v) => {
-                        ui::notify_ok(window, cx, format!("已添加转发 {}", v["description"].as_str().unwrap_or("")));
+                        ui::notify_ok(
+                            window,
+                            cx,
+                            tf!("已添加转发 {}", "Added forward {}", v["description"].as_str().unwrap_or("")),
+                        );
                         this.spec.update(cx, |s, cx| s.set_value("", window, cx));
                     }
-                    Err(e) => ui::notify_error(window, cx, "添加失败", &e),
+                    Err(e) => ui::notify_error(window, cx, t("添加失败", "Add failed"), &e),
                 }
                 cx.notify();
             });
@@ -95,12 +105,16 @@ impl ForwardsPage {
         window.open_alert_dialog(cx, move |alert, _, _| {
             let (page, f) = (page.clone(), f.clone());
             alert
-                .title(format!("停止转发 {}？", f.id))
-                .description(format!("{}\n正在使用它的连接会断开。", f.description))
+                .title(tf!("停止转发 {}？", "Stop forward {}?", f.id))
+                .description(tf!(
+                    "{}\n正在使用它的连接会断开。",
+                    "{}\nConnections using it are dropped.",
+                    f.description
+                ))
                 .confirm()
-                .ok_text("停止")
+                .ok_text(t("停止", "Stop"))
                 .ok_variant(ButtonVariant::Danger)
-                .cancel_text("取消")
+                .cancel_text(t("取消", "Cancel"))
                 .on_ok(move |_, window, cx| {
                     let id = f.id.clone();
                     let _ = page.update(cx, |p, cx| {
@@ -108,8 +122,8 @@ impl ForwardsPage {
                         cx.spawn_in(window, async move |_, cx| {
                             let r = fut.await;
                             let _ = cx.update(|window, cx| match r {
-                                Ok(_) => ui::notify_ok(window, cx, "转发已停止"),
-                                Err(e) => ui::notify_error(window, cx, "停止失败", &e),
+                                Ok(_) => ui::notify_ok(window, cx, t("转发已停止", "Forward stopped")),
+                                Err(e) => ui::notify_error(window, cx, t("停止失败", "Stop failed"), &e),
                             });
                         })
                         .detach();
@@ -121,7 +135,10 @@ impl ForwardsPage {
 }
 
 fn saved_aliases(backend: &Backend) -> Vec<String> {
-    backend.hosts().map(|h| h.into_iter().map(|h| h.alias).collect()).unwrap_or_default()
+    backend
+        .hosts()
+        .map(|h| h.into_iter().map(|h| h.alias).collect())
+        .unwrap_or_default()
 }
 
 impl ForwardsPage {
@@ -129,24 +146,30 @@ impl ForwardsPage {
         let (dir, listen, target) = match f.spec.kind {
             Kind::Local => (
                 "-L",
-                format!("本机 {}:{}", f.spec.bind_addr, f.spec.bind_port),
-                format!("{} 可达的 {}:{}", f.host, f.spec.target_host, f.spec.target_port),
+                tf!("本机 {}:{}", "local {}:{}", f.spec.bind_addr, f.spec.bind_port),
+                tf!(
+                    "{} 可达的 {}:{}",
+                    "{1}:{2} from {0}",
+                    f.host,
+                    f.spec.target_host,
+                    f.spec.target_port
+                ),
             ),
             Kind::Remote => (
                 "-R",
-                format!("{} 的 {}:{}", f.host, f.spec.bind_addr, f.spec.bind_port),
-                format!("本机 {}:{}", f.spec.target_host, f.spec.target_port),
+                tf!("{} 的 {}:{}", "{1}:{2} on {0}", f.host, f.spec.bind_addr, f.spec.bind_port),
+                tf!("本机 {}:{}", "local {}:{}", f.spec.target_host, f.spec.target_port),
             ),
             Kind::Dynamic => (
                 "-D",
-                format!("本机 SOCKS5 {}:{}", f.spec.bind_addr, f.spec.bind_port),
-                format!("经 {} 访问任意地址", f.host),
+                tf!("本机 SOCKS5 {}:{}", "local SOCKS5 {}:{}", f.spec.bind_addr, f.spec.bind_port),
+                tf!("经 {} 访问任意地址", "any address via {}", f.host),
             ),
         };
         let status = if f.alive {
-            Tag::success().outline().xsmall().child("正常")
+            Tag::success().outline().xsmall().child(t("正常", "Up"))
         } else {
-            Tag::danger().outline().xsmall().child("已断开")
+            Tag::danger().outline().xsmall().child(t("已断开", "Down"))
         };
         let id = f.id.clone();
         ui::table_row(
@@ -159,7 +182,7 @@ impl ForwardsPage {
                 ui::clip(target),
                 ui::clip(f.connections.to_string()),
                 status.into_any_element(),
-                row_button(SharedString::from(format!("stop-{id}")), "停止")
+                row_button(SharedString::from(format!("stop-{id}")), t("停止", "Stop"))
                     .on_click(cx.listener(move |this, _, window, cx| this.confirm_stop(f.clone(), window, cx)))
                     .into_any_element(),
             ],
@@ -171,14 +194,14 @@ impl ForwardsPage {
 }
 
 const COLS: [Col; 8] = [
-    col("ID", 90.),
-    col("主机", 120.),
-    col("方向", 60.),
-    col_flex("监听"),
-    col_flex("目标"),
-    col_right("连接数", 70.),
-    col("状态", 80.),
-    col_right("操作", 70.),
+    col("ID", "ID", 90.),
+    col("主机", "Host", 120.),
+    col("方向", "Kind", 60.),
+    col_flex("监听", "Listen"),
+    col_flex("目标", "Target"),
+    col_right("连接数", "Conns", 70.),
+    col("状态", "State", 80.),
+    col_right("操作", "Actions", 70.),
 ];
 
 impl Render for ForwardsPage {
@@ -186,10 +209,14 @@ impl Render for ForwardsPage {
         let forwards = self.daemon.read(cx).forwards.clone();
         let add = h_flex()
             .gap_2()
-            .child(div().w(px(180.)).child(Select::new(&self.host).placeholder("选择主机")))
+            .child(
+                div()
+                    .w(px(180.))
+                    .child(Select::new(&self.host).placeholder(t("选择主机", "Pick a host"))),
+            )
             .child(
                 RadioGroup::horizontal("fwd-kind")
-                    .children(["本地 -L", "远端 -R"])
+                    .children([t("本地 -L", "Local -L"), t("远端 -R", "Remote -R")])
                     .selected_index(Some(self.remote as usize))
                     .on_change(cx.listener(|this, ix: &usize, _, cx| {
                         this.remote = *ix == 1;
@@ -201,21 +228,30 @@ impl Render for ForwardsPage {
                 Button::new("fwd-add")
                     .primary()
                     .icon(IconName::Plus)
-                    .label("添加")
+                    .label(t("添加", "Add"))
                     .loading(self.adding)
                     .disabled(self.adding)
                     .on_click(cx.listener(|this, _, window, cx| this.add(window, cx))),
             );
         let hint = if self.remote {
-            "远端 -R：[绑定地址:]远端端口:本机目标地址:端口。服务器上的端口转到本机。"
+            t(
+                "远端 -R：[绑定地址:]远端端口:本机目标地址:端口。服务器上的端口转到本机。",
+                "Remote -R: [bind:]remote_port:local_target:port. A port on the server leads to this machine.",
+            )
         } else {
-            "本地 -L：[绑定地址:]本机端口:目标地址:端口。本机 127.0.0.1 的端口经服务器转到目标。"
+            t(
+                "本地 -L：[绑定地址:]本机端口:目标地址:端口。本机 127.0.0.1 的端口经服务器转到目标。",
+                "Local -L: [bind:]local_port:target:port. A port on 127.0.0.1 here leads through the server to the target.",
+            )
         };
         let body = if forwards.is_empty() {
             ui::table_empty(
                 &COLS,
-                "没有端口转发",
-                "用上方表单添加，或让 agent 运行 `xssh forward add <主机> -L 本机端口:目标地址:端口`。",
+                t("没有端口转发", "No port forwards"),
+                t(
+                    "用上方表单添加，或让 agent 运行 `xssh forward add <主机> -L 本机端口:目标地址:端口`。",
+                    "Add one with the form above, or have an agent run `xssh forward add <host> -L local_port:target:port`.",
+                ),
                 cx,
             )
             .into_any_element()
@@ -243,8 +279,11 @@ impl Render for ForwardsPage {
             .p_6()
             .gap_4()
             .child(ui::page_header(
-                "端口转发",
-                "由守护进程维持；停止守护进程会关闭所有转发。",
+                t("端口转发", "Port forwards"),
+                t(
+                    "由守护进程维持；停止守护进程会关闭所有转发。",
+                    "Held by the daemon; stopping the daemon closes them all.",
+                ),
                 div(),
                 cx,
             ))

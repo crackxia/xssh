@@ -22,8 +22,26 @@ export interface Manifest {
 
 /** Used when KV has no manifest yet (first deploy); `scripts/release.mjs` writes the real one. */
 const FALLBACK: Manifest = {
-	latest: "0.2.2",
+	latest: "0.2.3",
 	releases: [
+		{
+			version: "0.2.3",
+			date: "2026-10-04",
+			notes: {
+				en: [
+					"Desktop: English and Simplified Chinese. It follows the system language on first run; switch at the bottom of the sidebar, and the choice is remembered.",
+				],
+				zh: ["桌面端支持英文和简体中文：首次启动跟随系统语言，可在侧栏底部切换，选择会被记住。"],
+			},
+			files: [
+				{
+					target: "windows-x86_64",
+					name: "xssh-0.2.3-windows-x86_64.zip",
+					size: 14918070,
+					sha256: "2cd6f7be915c6b04145f9fd547ab7a1facbcfaed7f3412fec3c82ec1f751969a",
+				},
+			],
+		},
 		{
 			version: "0.2.2",
 			date: "2026-10-04",

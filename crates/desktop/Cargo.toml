@@ -22,4 +22,4 @@ tokio.workspace = true
 embed-resource.workspace = true
 
 [target.'cfg(windows)'.dependencies]
-windows-sys = { workspace = true, features = ["Win32_UI_WindowsAndMessaging"] }
+windows-sys = { workspace = true, features = ["Win32_Globalization", "Win32_UI_WindowsAndMessaging"] }

@@ -1,6 +1,7 @@
 //! Main window: navigation, daemon status polling, and the active page.
 
 use crate::backend::Backend;
+use crate::i18n::{self, Lang, t, tf};
 use crate::model::{DaemonModel, DaemonStatus};
 use crate::pages::{AuditPage, DaemonPage, ForwardsPage, HostsPage, IntegrationsPage, JobsPage, SessionsPage};
 use gpui_kit::base::StyledExt as _;
@@ -41,13 +42,13 @@ impl Page {
 
     fn label(self) -> &'static str {
         match self {
-            Page::Hosts => "主机",
-            Page::Sessions => "会话",
-            Page::Forwards => "端口转发",
-            Page::Jobs => "后台任务",
-            Page::Audit => "审计日志",
-            Page::Daemon => "守护进程",
-            Page::Integrations => "集成",
+            Page::Hosts => t("主机", "Hosts"),
+            Page::Sessions => t("会话", "Sessions"),
+            Page::Forwards => t("端口转发", "Port forwards"),
+            Page::Jobs => t("后台任务", "Jobs"),
+            Page::Audit => t("审计日志", "Audit log"),
+            Page::Daemon => t("守护进程", "Daemon"),
+            Page::Integrations => t("集成", "Integrations"),
         }
     }
 
@@ -77,6 +78,7 @@ impl Page {
 }
 
 pub struct MainView {
+    backend: Arc<Backend>,
     page: Page,
     daemon: Entity<DaemonModel>,
     hosts: Entity<HostsPage>,
@@ -121,9 +123,29 @@ impl MainView {
             audit: cx.new(|cx| AuditPage::new(backend.clone(), window, cx)),
             daemon_page: cx.new(|cx| DaemonPage::new(backend.clone(), daemon.clone(), cx)),
             integrations: cx.new(IntegrationsPage::new),
+            backend,
             daemon,
             _poll: poll,
         }
+    }
+
+    /// Switch the interface language. Pages are rebuilt so text set when they were built
+    /// (placeholders, choices) follows too; their data is reloaded from the store and daemon.
+    fn set_lang(&mut self, lang: Lang, window: &mut Window, cx: &mut Context<Self>) {
+        if lang == i18n::lang() {
+            return;
+        }
+        i18n::set(lang, &self.backend.paths.home);
+        let (backend, daemon) = (self.backend.clone(), self.daemon.clone());
+        self.sessions.update(cx, |p, cx| p.set_visible(false, cx));
+        self.hosts = cx.new(|cx| HostsPage::new(backend.clone(), window, cx));
+        self.sessions = cx.new(|cx| SessionsPage::new(backend.clone(), daemon.clone(), window, cx));
+        self.forwards = cx.new(|cx| ForwardsPage::new(backend.clone(), daemon.clone(), window, cx));
+        self.jobs = cx.new(|cx| JobsPage::new(backend.clone(), window, cx));
+        self.audit = cx.new(|cx| AuditPage::new(backend.clone(), window, cx));
+        self.daemon_page = cx.new(|cx| DaemonPage::new(backend.clone(), daemon.clone(), cx));
+        self.integrations = cx.new(IntegrationsPage::new);
+        self.show(self.page, window, cx);
     }
 
     fn show(&mut self, page: Page, window: &mut Window, cx: &mut Context<Self>) {
@@ -144,13 +166,21 @@ impl MainView {
     fn render_nav(&self, cx: &mut Context<Self>) -> impl IntoElement {
         let d = self.daemon.read(cx);
         let (dot, text) = match &d.status {
-            DaemonStatus::Unknown => (cx.theme().muted_foreground, "检测中…".to_string()),
+            DaemonStatus::Unknown => (cx.theme().muted_foreground, t("检测中…", "Checking…").to_string()),
             DaemonStatus::Running => (
                 cx.theme().success,
-                format!("运行中 · {} 会话 · {} 转发", d.sessions.len(), d.forwards.len()),
+                tf!(
+                    "运行中 · {} 会话 · {} 转发",
+                    "Running · {} sess · {} fwd",
+                    d.sessions.len(),
+                    d.forwards.len()
+                ),
             ),
-            DaemonStatus::Stopped => (cx.theme().muted_foreground, "未运行（按需自动启动）".to_string()),
-            DaemonStatus::Error(_) => (cx.theme().danger, "版本不兼容".to_string()),
+            DaemonStatus::Stopped => (
+                cx.theme().muted_foreground,
+                t("未运行（按需自动启动）", "Stopped (starts on demand)").to_string(),
+            ),
+            DaemonStatus::Error(_) => (cx.theme().danger, t("版本不兼容", "Version mismatch").to_string()),
         };
         let counts = |p: Page| match p {
             Page::Sessions if !d.sessions.is_empty() => Some(d.sessions.len()),
@@ -198,13 +228,45 @@ impl MainView {
                     .cursor_pointer()
                     .on_click(cx.listener(|this, _, window, cx| this.show(Page::Daemon, window, cx)))
                     .child(
-                        h_flex()
-                            .gap_2()
-                            .child(div().size(px(8.)).rounded_full().bg(dot))
-                            .child(div().text_xs().text_color(cx.theme().muted_foreground).child("守护进程")),
+                        h_flex().gap_2().child(div().size(px(8.)).rounded_full().bg(dot)).child(
+                            div()
+                                .text_xs()
+                                .text_color(cx.theme().muted_foreground)
+                                .child(t("守护进程", "Daemon")),
+                        ),
                     )
-                    .child(div().pt_1().text_xs().child(text)),
+                    .child(div().pt_1().text_xs().truncate().child(text)),
             )
+            .child(self.render_lang(cx))
+    }
+
+    /// "中文 · English": the current language in the foreground, the other one clickable.
+    fn render_lang(&self, cx: &mut Context<Self>) -> impl IntoElement {
+        let current = i18n::lang();
+        h_flex()
+            .px_4()
+            .py_2()
+            .gap_1()
+            .border_t_1()
+            .border_color(cx.theme().border)
+            .text_xs()
+            .text_color(cx.theme().muted_foreground)
+            .children([Lang::Zh, Lang::En].into_iter().enumerate().map(|(i, lang)| {
+                let item = div()
+                    .id(("lang", i))
+                    .px_1p5()
+                    .py_0p5()
+                    .rounded(cx.theme().radius)
+                    .child(lang.name());
+                if lang == current {
+                    item.text_color(cx.theme().foreground).font_medium().into_any_element()
+                } else {
+                    item.cursor_pointer()
+                        .hover(|this| this.bg(cx.theme().sidebar_accent.opacity(0.5)).text_color(cx.theme().foreground))
+                        .on_click(cx.listener(move |this, _, window, cx| this.set_lang(lang, window, cx)))
+                        .into_any_element()
+                }
+            }))
     }
 }
 

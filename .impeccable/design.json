@@ -151,7 +151,7 @@
       "Don't set tag text in the border colour, or fill status tags.",
       "Don't self-host or import a display or mono web font. Use the system UI sans and Consolas-class mono.",
       "Don't put real hosts, IPs or user names in the replica or any sample. Use documentation ranges.",
-      "Don't translate the replica's interface into English. It mirrors the Chinese-only app."
+      "Don't mix languages inside the replica. Every label it shows comes from the app's own Chinese or English text."
     ]
   }
 }

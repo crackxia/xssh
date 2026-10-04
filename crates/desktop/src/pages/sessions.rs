@@ -3,6 +3,7 @@
 //! "screen unchanged" tracking are unaffected. Every list here is virtualized.
 
 use crate::backend::Backend;
+use crate::i18n::{t, tf};
 use crate::model::DaemonModel;
 use crate::ui;
 use gpui_kit::base::StyledExt as _;
@@ -224,15 +225,16 @@ impl SessionsPage {
         window.open_alert_dialog(cx, move |alert, _, _| {
             let (page, s) = (page.clone(), s.clone());
             alert
-                .title(format!("关闭会话 {}？", s.key()))
-                .description(format!(
+                .title(tf!("关闭会话 {}？", "Close session {}?", s.key()))
+                .description(tf!(
                     "{} 上的 shell 及其中运行的程序会被结束。如果有 agent 正在使用这个会话，它的后续操作会失败。会话日志会保留。",
+                    "The shell on {} and everything running in it end. An agent still using this session will fail its next step. The transcript is kept.",
                     s.host
                 ))
                 .confirm()
-                .ok_text("关闭会话")
+                .ok_text(t("关闭会话", "Close session"))
                 .ok_variant(ButtonVariant::Danger)
-                .cancel_text("取消")
+                .cancel_text(t("取消", "Cancel"))
                 .on_ok(move |_, window, cx| {
                     let id = s.id.clone();
                     let _ = page.update(cx, |p, cx| p.close(id, window, cx));
@@ -247,8 +249,8 @@ impl SessionsPage {
             let r = fut.await;
             let _ = this.update_in(cx, |this, window, cx| {
                 match r {
-                    Ok(_) => ui::notify_ok(window, cx, "会话已关闭"),
-                    Err(e) => ui::notify_error(window, cx, "关闭失败", &e),
+                    Ok(_) => ui::notify_ok(window, cx, t("会话已关闭", "Session closed")),
+                    Err(e) => ui::notify_error(window, cx, t("关闭失败", "Close failed"), &e),
                 }
                 this.selected = None;
                 this.reload_history(cx);
@@ -282,17 +284,17 @@ impl SessionsPage {
                     div()
                         .text_xs()
                         .text_color(muted)
-                        .child(format!("{} · 空闲 {}", s.host, ui::human_secs(s.idle_secs))),
+                        .child(tf!("{} · 空闲 {}", "{} · idle {}", s.host, ui::human_secs(s.idle_secs))),
                 )
                 .child(div().text_xs().truncate().child(if s.cmd.is_empty() {
                     " ".to_string()
                 } else {
-                    format!("运行：{}", s.cmd)
+                    tf!("运行：{}", "Running: {}", s.cmd)
                 }))
                 .child(div().text_xs().truncate().text_color(muted).child(if s.last.is_empty() {
                     " ".to_string()
                 } else {
-                    format!("最近输入：{}", s.last)
+                    tf!("最近输入：{}", "Last input: {}", s.last)
                 })),
         )
     }
@@ -307,9 +309,9 @@ impl SessionsPage {
         let live = if n_live == 0 {
             ui::empty(
                 if running {
-                    "没有打开的会话"
+                    t("没有打开的会话", "No open sessions")
                 } else {
-                    "守护进程未运行，没有会话"
+                    t("守护进程未运行，没有会话", "The daemon is not running: no sessions")
                 },
                 cx,
             )
@@ -348,7 +350,7 @@ impl SessionsPage {
                         .border_color(cx.theme().border)
                         .text_xs()
                         .text_color(muted)
-                        .child(format!("已关闭的会话日志（{n_hist}）")),
+                        .child(tf!("已关闭的会话日志（{n_hist}）", "Closed session transcripts ({n_hist})")),
                 )
                 .child(div().px_2().flex_1().min_h_0().child(ui::virtual_list(
                     uniform_list(
@@ -393,9 +395,9 @@ impl SessionsPage {
             .child(if self.lines.is_empty() {
                 ui::empty(
                     if self.view == View::Screen {
-                        "正在读取屏幕…"
+                        t("正在读取屏幕…", "Reading the screen…")
                     } else {
-                        "日志为空"
+                        t("日志为空", "The transcript is empty")
                     },
                     cx,
                 )
@@ -407,7 +409,16 @@ impl SessionsPage {
 
     fn render_detail(&self, cx: &mut Context<Self>) -> impl IntoElement {
         let live = match &self.selected {
-            None => return ui::empty("选择左侧的会话查看它的屏幕和日志", cx).into_any_element(),
+            None => {
+                return ui::empty(
+                    t(
+                        "选择左侧的会话查看它的屏幕和日志",
+                        "Pick a session on the left to see its screen and transcript",
+                    ),
+                    cx,
+                )
+                .into_any_element();
+            }
             Some(Selected::Closed(p)) => {
                 return v_flex()
                     .size_full()
@@ -424,7 +435,7 @@ impl SessionsPage {
             Some(Selected::Live(id)) => self.daemon.read(cx).sessions.iter().find(|s| &s.id == id).cloned(),
         };
         let Some(s) = live else {
-            return ui::empty("会话已结束", cx).into_any_element();
+            return ui::empty(t("会话已结束", "The session has ended"), cx).into_any_element();
         };
         let tab = |id: &'static str, label: &'static str, view: View, cx: &mut Context<Self>| {
             let b = Button::new(id).small().label(label);
@@ -442,8 +453,9 @@ impl SessionsPage {
                             .child(div().text_lg().font_semibold().child(s.key().to_string()))
                             .child(state_tag(&s)),
                     )
-                    .child(div().text_xs().text_color(cx.theme().muted_foreground).child(format!(
+                    .child(div().text_xs().text_color(cx.theme().muted_foreground).child(tf!(
                         "{} · {}×{} · 创建于 {}",
+                        "{} · {}×{} · opened {}",
                         s.host,
                         s.cols,
                         s.rows,
@@ -454,15 +466,15 @@ impl SessionsPage {
                 h_flex()
                     .flex_none()
                     .gap_2()
-                    .child(tab("view-screen", "屏幕", View::Screen, cx))
-                    .child(tab("view-log", "日志", View::Log, cx))
+                    .child(tab("view-screen", t("屏幕", "Screen"), View::Screen, cx))
+                    .child(tab("view-log", t("日志", "Transcript"), View::Log, cx))
                     .child({
                         let s = s.clone();
                         Button::new("session-close")
                             .small()
                             .danger()
                             .icon(IconName::Close)
-                            .label("关闭会话")
+                            .label(t("关闭会话", "Close session"))
                             .on_click(cx.listener(move |this, _, window, cx| this.confirm_close(s.clone(), window, cx)))
                     }),
             );
@@ -472,29 +484,27 @@ impl SessionsPage {
             .p_4()
             .child(header)
             .child(self.render_lines(cx))
-            .child(
-                div()
-                    .text_xs()
-                    .text_color(cx.theme().muted_foreground)
-                    .child("只读查看：不会向会话发送任何输入，也不影响 agent 的读取进度。"),
-            )
+            .child(div().text_xs().text_color(cx.theme().muted_foreground).child(t(
+                "只读查看：不会向会话发送任何输入，也不影响 agent 的读取进度。",
+                "Read-only: nothing is sent to the session, and the agent's reading position is unaffected.",
+            )))
             .into_any_element()
     }
 }
 
 fn state_tag(s: &SessionInfo) -> Tag {
     let tag = match (s.state, s.prompt) {
-        (SessionState::Running, _) => Tag::info().child("运行中"),
-        (SessionState::WaitingInput, Some(PromptKind::Shell) | None) => Tag::success().child("空闲"),
-        (SessionState::WaitingInput, Some(PromptKind::Password)) => Tag::warning().child("等待密码"),
-        (SessionState::WaitingInput, Some(PromptKind::Confirm)) => Tag::warning().child("等待确认"),
+        (SessionState::Running, _) => Tag::info().child(t("运行中", "Running")),
+        (SessionState::WaitingInput, Some(PromptKind::Shell) | None) => Tag::success().child(t("空闲", "Idle")),
+        (SessionState::WaitingInput, Some(PromptKind::Password)) => Tag::warning().child(t("等待密码", "Password prompt")),
+        (SessionState::WaitingInput, Some(PromptKind::Confirm)) => Tag::warning().child(t("等待确认", "Confirm prompt")),
         (SessionState::WaitingInput, Some(PromptKind::Repl)) => Tag::info().child("REPL"),
-        (SessionState::WaitingInput, Some(PromptKind::Pager)) => Tag::warning().child("分页器"),
-        (SessionState::WaitingInput, Some(PromptKind::Input)) => Tag::warning().child("等待输入"),
-        (SessionState::Quiet, _) => Tag::secondary().child("无输出"),
-        (SessionState::Exited, _) => Tag::danger().child("已退出"),
-        (SessionState::Disconnected, _) if s.persistent => Tag::warning().child("已分离"),
-        (SessionState::Disconnected, _) => Tag::danger().child("连接断开"),
+        (SessionState::WaitingInput, Some(PromptKind::Pager)) => Tag::warning().child(t("分页器", "Pager")),
+        (SessionState::WaitingInput, Some(PromptKind::Input)) => Tag::warning().child(t("等待输入", "Input prompt")),
+        (SessionState::Quiet, _) => Tag::secondary().child(t("无输出", "Quiet")),
+        (SessionState::Exited, _) => Tag::danger().child(t("已退出", "Exited")),
+        (SessionState::Disconnected, _) if s.persistent => Tag::warning().child(t("已分离", "Detached")),
+        (SessionState::Disconnected, _) => Tag::danger().child(t("连接断开", "Disconnected")),
     };
     tag.outline().xsmall()
 }
@@ -504,26 +514,30 @@ impl Render for SessionsPage {
         let d = self.daemon.read(cx);
         let (n, running) = (d.sessions.len(), d.running());
         let page = v_flex().size_full().child(div().px_6().pt_6().pb_4().child(ui::page_header(
-            "会话",
-            format!("{n} 个交互式会话，由 agent 通过 `xssh session` 打开。这里只读查看。"),
+            t("会话", "Sessions"),
+            tf!(
+                "{n} 个交互式会话，由 agent 通过 `xssh session` 打开。这里只读查看。",
+                "{n} interactive sessions opened by agents with `xssh session`. Read-only here."
+            ),
             div(),
             cx,
         )));
         // Nothing to list or show: one explanation instead of two empty panes.
         if n == 0 && self.history.is_empty() {
-            let hint = "agent 运行 `xssh session open <主机> --name <名称>` 后，会话出现在这里，可以只读查看它的实时屏幕和完整日志，不会干扰 agent。";
+            let hint = t(
+                "agent 运行 `xssh session open <主机> --name <名称>` 后，会话出现在这里，可以只读查看它的实时屏幕和完整日志，不会干扰 agent。",
+                "Sessions appear here after an agent runs `xssh session open <host> --name <name>`. Watch the live screen and full transcript without disturbing the agent.",
+            );
             return page
-                .child(
-                    div()
-                        .flex_1()
-                        .border_t_1()
-                        .border_color(cx.theme().border)
-                        .child(ui::empty_state(
-                            if running { "没有打开的会话" } else { "守护进程未运行，没有会话" },
-                            hint,
-                            cx,
-                        )),
-                )
+                .child(div().flex_1().border_t_1().border_color(cx.theme().border).child(ui::empty_state(
+                    if running {
+                        t("没有打开的会话", "No open sessions")
+                    } else {
+                        t("守护进程未运行，没有会话", "The daemon is not running: no sessions")
+                    },
+                    hint,
+                    cx,
+                )))
                 .into_any_element();
         }
         page.child(

@@ -3,7 +3,7 @@ import type { Lang, Strings } from "./i18n";
 import { STRINGS } from "./i18n";
 
 /** Bump with any change to /assets/site.css or site.js (they are cached for a long time). */
-export const ASSET_V = "16";
+export const ASSET_V = "17";
 
 export const ORIGIN = "https://xssh.io";
 

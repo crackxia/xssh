@@ -80,7 +80,7 @@ impl DaemonModel {
                     DaemonStatus::Stopped
                 } else {
                     DaemonStatus::Error(match &e.hint {
-                        Some(h) => format!("{}（{h}）", e.message),
+                        Some(h) => crate::i18n::tf!("{}（{h}）", "{} ({h})", e.message),
                         None => e.message.clone(),
                     })
                 };
