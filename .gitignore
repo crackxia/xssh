@@ -3,3 +3,7 @@
 # Local tool state
 .claude/
 .wrangler/
+
+# Design review artifacts
+.impeccable/questions/
+.impeccable/review/

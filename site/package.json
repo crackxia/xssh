@@ -1,0 +1,22 @@
+{
+	"name": "site",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "cf dev",
+		"build": "cf build",
+		"deploy": "cf deploy",
+		"typecheck": "cf workers types && tsc"
+	},
+	"devDependencies": {
+		"@cloudflare/vite-plugin": "beta",
+		"cf": "^1.0.0-beta.12",
+		"typescript": "^7.0.2",
+		"vite": "^8.3.0"
+	},
+	"dependencies": {
+		"@fontsource-variable/schibsted-grotesk": "^5.3.0",
+		"@fontsource/commit-mono": "^5.3.0",
+		"marked": "^18.0.14"
+	}
+}

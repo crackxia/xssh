@@ -1,0 +1,21 @@
+{
+	"date": "2026-10-04",
+	"notes": {
+		"en": [
+			"First public release.",
+			"Hosts: --expires, prune, export to ssh_config, duplicate logins flagged.",
+			"Connect errors show last success and address; local proxy/TUN detected.",
+			"Dead pooled connections replaced; daemon stop/restart refuse while others' sessions are open.",
+			"No terminal: password and host key prompts use a desktop dialog.",
+			"file write/edit --secrets, job start -q, xssh path."
+		],
+		"zh": [
+			"首个公开版本。",
+			"主机：--expires、prune、导出 ssh_config，标出重复登录。",
+			"连接失败显示上次成功时间与地址；识别本地代理/TUN。",
+			"失效连接自动替换；他人会话未结束时拒绝 daemon stop/restart。",
+			"无终端时，密码与主机密钥确认改用桌面对话框。",
+			"file write/edit --secrets、job start -q、xssh path。"
+		]
+	}
+}
