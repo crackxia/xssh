@@ -1,0 +1,9 @@
+# rust-lld ships with rustup and links several times faster than MSVC link.exe
+# (the desktop binary links hundreds of GPUI crates).
+[target.x86_64-pc-windows-msvc]
+linker = "rust-lld.exe"
+
+[alias]
+desktop = "run -p xssh-desktop"
+desktop-build = "build -p xssh-desktop"
+all = "build --workspace"

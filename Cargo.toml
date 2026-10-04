@@ -1,0 +1,73 @@
+[workspace]
+resolver = "3"
+members = ["crates/*"]
+# `cargo build` / `cargo test` cover the CLI stack only; the desktop app pulls in GPUI and is
+# built on request (`cargo desktop`, see .cargo/config.toml).
+default-members = ["crates/core", "crates/store", "crates/engine", "crates/cli"]
+
+[workspace.package]
+version = "0.2.0"
+edition = "2024"
+license = "MIT"
+repository = "https://github.com/crackxia/xssh"
+homepage = "https://xssh.io"
+
+[workspace.dependencies]
+xssh-core = { path = "crates/core" }
+xssh-store = { path = "crates/store" }
+xssh-engine = { path = "crates/engine" }
+
+base64 = "0.22"
+chacha20poly1305 = "0.10"
+chrono = { version = "0.4", default-features = false, features = ["clock", "std", "serde"] }
+clap = { version = "4.6", features = ["derive", "env", "wrap_help"] }
+embed-resource = "3"
+encoding_rs = "0.8"
+futures = "0.3"
+gpui-kit = "0.7.0"
+hex = "0.4"
+humantime = "2"
+interprocess = { version = "2.4", features = ["tokio"] }
+keyring = "4"
+libc = "0.2"
+rand = "0.10"
+regex = "1"
+rpassword = "7"
+russh = { version = "0.63", default-features = false, features = ["ring", "flate2", "rsa", "des"] }
+russh-sftp = "3"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+strip-ansi-escapes = "0.2"
+tokio = { version = "1.53", features = ["rt-multi-thread", "macros", "net", "io-util", "time", "sync", "process", "fs"] }
+toml = "0.9"
+vt100 = "0.16"
+windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_System_Console", "Win32_System_Threading"] }
+zeroize = "1"
+
+# Fast edit-compile loops: no debug info for dependencies (smaller objects, much faster linking),
+# line tables only for our crates (enough for panics/backtraces).
+[profile.dev]
+debug = "line-tables-only"
+
+[profile.dev.package."*"]
+debug = false
+
+# GPUI's layout/text/raster hot paths are unusably slow unoptimized; compiled once, then cached.
+[profile.dev.package]
+gpui-pre = { opt-level = 3 }
+gpui-pre-platform = { opt-level = 3 }
+resvg = { opt-level = 3 }
+rustybuzz = { opt-level = 3 }
+taffy = { opt-level = 3 }
+ttf-parser = { opt-level = 3 }
+
+# Local release builds: optimized but without LTO, so a rebuild takes seconds, not minutes.
+[profile.release]
+strip = true
+
+# Distribution builds: `cargo build --profile dist`.
+[profile.dist]
+inherits = "release"
+lto = "thin"
+codegen-units = 1
