@@ -1,0 +1,13 @@
+{
+	"date": "2026-10-04",
+	"notes": {
+		"en": [
+			"Skill: the full xssh path is written only when xssh is not already on PATH, saving agent context.",
+			"Desktop Integrations: adding xssh to or removing it from PATH marks installed skills for update."
+		],
+		"zh": [
+			"Skill：仅在 xssh 未加入 PATH 时写入完整路径，节省 agent 上下文。",
+			"桌面端集成页：加入 / 移出 PATH 后，已安装的 skill 显示为需更新。"
+		]
+	}
+}

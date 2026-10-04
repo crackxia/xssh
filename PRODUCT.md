@@ -33,7 +33,7 @@ Plain ssh is built for a human at a terminal; an agent calling it per tool call 
 
 ## Capabilities and Constraints
 
-- Current release: 0.2.0, Windows x86_64 zip (`xssh.exe`, `xssh-desktop.exe`, README). No macOS/Linux builds published yet.
+- Current release: 0.2.1, Windows x86_64 zip (`xssh.exe`, `xssh-desktop.exe`, README). No macOS/Linux builds published yet.
 - License: MIT (open source). Public repository: https://github.com/crackxia/xssh
 - Free. No pricing, accounts, or telemetry in the product.
 - Agent manual: `docs/guide.md` (= `xssh guide` = skill body).

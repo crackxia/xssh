@@ -23,7 +23,7 @@ use xssh_store::hosts::{Host, HostStore};
 use xssh_store::secrets::{self, SecretStore};
 use xssh_store::{audit, skills, ssh_config};
 
-use xssh_core::guide::{GUIDE, skill_md};
+use xssh_core::guide::GUIDE;
 
 #[derive(Parser, Debug)]
 #[command(
@@ -1370,7 +1370,7 @@ pub async fn run(cli: Cli) -> Result<i32> {
                 print!("{GUIDE}");
                 return Ok(0);
             }
-            let content = skill_md(xssh_core::paths::current_exe().ok().as_deref());
+            let content = skills::content(xssh_core::paths::current_exe().ok().as_deref());
             let mut installed = Vec::new();
             if let Some(dir) = path {
                 std::fs::create_dir_all(&dir)?;

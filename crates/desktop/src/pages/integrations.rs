@@ -15,7 +15,6 @@ use gpui_kit::{
 };
 use std::path::PathBuf;
 use std::rc::Rc;
-use xssh_core::guide::skill_md;
 use xssh_core::{Error, Result};
 use xssh_store::skills::{self, AGENTS, Agent, SkillState};
 use xssh_store::user_path::{self, PathStatus};
@@ -31,12 +30,15 @@ struct Row {
 }
 
 pub struct IntegrationsPage {
-    /// Folder holding the xssh CLI (next to this app), or None when it is not there.
+    /// The xssh CLI next to this app, or None when it is not there.
+    cli: Option<PathBuf>,
+    /// Its folder.
     cli_dir: Option<PathBuf>,
     path: Result<PathStatus>,
     path_busy: bool,
     home: Result<PathBuf>,
-    /// What an install writes now; rows compare the installed file against it.
+    /// What an install writes now (with the CLI's full path only while it is not on PATH); rows
+    /// compare the installed file against it.
     skill: String,
     rows: Rc<Vec<Row>>,
     scroll: UniformListScrollHandle,
@@ -47,10 +49,11 @@ impl IntegrationsPage {
         let cli = cli_sibling();
         let mut p = IntegrationsPage {
             cli_dir: cli.as_ref().and_then(|c| c.parent().map(PathBuf::from)),
+            cli,
             path: Ok(PathStatus::default()),
             path_busy: false,
             home: skills::home_dir(),
-            skill: skill_md(cli.as_deref()),
+            skill: String::new(),
             rows: Rc::default(),
             scroll: UniformListScrollHandle::new(),
         };
@@ -63,6 +66,7 @@ impl IntegrationsPage {
         if let Some(dir) = &self.cli_dir {
             self.path = user_path::status(dir);
         }
+        self.skill = skills::content(self.cli.as_deref());
         if let Ok(home) = &self.home {
             self.rows = Rc::new(
                 AGENTS
@@ -333,7 +337,7 @@ impl Render for IntegrationsPage {
                     .items_end()
                     .child(section_title(
                         "AI 编程工具 Skill",
-                        "安装后，agent 遇到与远程服务器相关的任务会自动使用 xssh。Skill 内容即 `xssh guide`，并写明了本机 xssh 的完整路径（未加入 PATH 也能用）；升级或移动 xssh 后，状态会显示“需更新”，点“全部更新”即可。",
+                        "安装后，agent 遇到与远程服务器相关的任务会自动使用 xssh。Skill 内容即 `xssh guide`；xssh 未加入 PATH 时还会写明本机 xssh 的完整路径，已加入则省略以节省 agent 上下文。升级、移动 xssh 或加入 / 移出 PATH 后，状态会显示“需更新”，点“全部更新”即可。",
                         cx,
                     ))
                     .child(h_flex().gap_2().children(update_all).child(install_all)),

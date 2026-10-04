@@ -1,9 +1,10 @@
 //! The xssh skill for agent CLIs (Claude Code, Codex, Gemini CLI, ...): where each one reads
 //! user-level skills, and installing / updating / removing `<skills dir>/xssh/SKILL.md`.
 
+use crate::user_path;
 use std::path::{Path, PathBuf};
 use xssh_core::error::{Error, Result};
-use xssh_core::guide::SKILL_NAME;
+use xssh_core::guide::{SKILL_NAME, skill_md};
 
 pub struct Agent {
     /// Stable id for the CLI (`--agent codex`).
@@ -105,6 +106,16 @@ pub enum SkillState {
     Current,
     /// Installed, but from another build or for another executable path.
     Outdated,
+}
+
+/// `SKILL.md` for the xssh at `exe`. Its full path is written only when a newly started agent
+/// would not already run it as plain `xssh` (folder not on PATH, or another copy first): every
+/// session that loads the skill pays for that line.
+pub fn content(exe: Option<&Path>) -> String {
+    let on_path = exe
+        .and_then(Path::parent)
+        .is_some_and(|d| user_path::status(d).is_ok_and(|s| s.effective(d)));
+    skill_md(exe.filter(|_| !on_path))
 }
 
 pub fn home_dir() -> Result<PathBuf> {

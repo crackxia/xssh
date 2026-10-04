@@ -22,8 +22,30 @@ export interface Manifest {
 
 /** Used when KV has no manifest yet (first deploy); `scripts/release.mjs` writes the real one. */
 const FALLBACK: Manifest = {
-	latest: "0.2.0",
+	latest: "0.2.1",
 	releases: [
+		{
+			version: "0.2.1",
+			date: "2026-10-04",
+			notes: {
+				en: [
+					"Skill: the full xssh path is written only when xssh is not already on PATH, saving agent context.",
+					"Desktop Integrations: adding xssh to or removing it from PATH marks installed skills for update.",
+				],
+				zh: [
+					"Skill：仅在 xssh 未加入 PATH 时写入完整路径，节省 agent 上下文。",
+					"桌面端集成页：加入 / 移出 PATH 后，已安装的 skill 显示为需更新。",
+				],
+			},
+			files: [
+				{
+					target: "windows-x86_64",
+					name: "xssh-0.2.1-windows-x86_64.zip",
+					size: 14751669,
+					sha256: "eb8b2d26e568726c4f162f7fa2de97856d5a6554e69688a7f4d2c204ae001ac3",
+				},
+			],
+		},
 		{
 			version: "0.2.0",
 			date: "2026-10-04",
