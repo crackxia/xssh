@@ -29,12 +29,14 @@ export function download(lang: Lang, m: Manifest, counts: Map<string, number>): 
 <section class="release" aria-labelledby="v-${esc(r.version)}">
   <div class="release-head">
     <h2 id="v-${esc(r.version)}">v${esc(r.version)}</h2>
-    ${r.version === m.latest ? `<span class="pill">${esc(t.latest)}</span>` : ""}
+    ${r.version === m.latest ? `<span class="tag ok">${esc(t.latest)}</span>` : ""}
     <time class="dim" datetime="${esc(r.date)}">${esc(r.date)}</time>
   </div>
+  <div class="release-body">
   ${files}
   <h3>${esc(t.notes)}</h3>
   <ul class="notes">${r.notes[lang].map((n) => `<li>${esc(n)}</li>`).join("")}</ul>
+  </div>
 </section>`;
 		})
 		.join("");
@@ -55,7 +57,7 @@ export function notFound(lang: Lang): string {
 	const t = STRINGS[lang].notFound;
 	return `
 <div class="wrap page nf">
-  <p class="code404">404<span class="cursor" aria-hidden="true"></span></p>
+  <p class="code404">404</p>
   <h1>${esc(t.title)}</h1>
   <p>${esc(t.text)}</p>
   <a class="btn" href="${lang === "zh" ? "/zh/" : "/"}">${esc(t.back)}</a>

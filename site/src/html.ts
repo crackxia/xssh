@@ -3,7 +3,7 @@ import type { Lang, Strings } from "./i18n";
 import { STRINGS } from "./i18n";
 
 /** Bump with any change to /assets/site.css or site.js (they are cached for a long time). */
-export const ASSET_V = "11";
+export const ASSET_V = "16";
 
 export const ORIGIN = "https://xssh.io";
 
@@ -80,8 +80,8 @@ export function layout(p: Page): string {
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" href="/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<meta name="theme-color" content="#090e22">
-<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#f8f8f8">
+<meta name="color-scheme" content="light">
 <meta property="og:type" content="website">
 <meta property="og:title" content="${esc(title)}">
 <meta property="og:description" content="${esc(desc)}">
@@ -93,8 +93,6 @@ export function layout(p: Page): string {
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="${esc(t.h1)}">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="preload" href="/fonts/schibsted-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="/fonts/commit-mono-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/assets/site.css?v=${ASSET_V}">
 <script src="/assets/site.js?v=${ASSET_V}" defer></script>
 ${env.ANALYTICS_TOKEN ? `<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"${esc(env.ANALYTICS_TOKEN)}"}'></script>` : ""}
@@ -104,8 +102,8 @@ ${env.ANALYTICS_TOKEN ? `<script defer src="https://static.cloudflareinsights.co
 <p class="sr" aria-live="polite" data-live data-msg="${esc(t.copiedSr)}"></p>
 <header class="top">
   <div class="wrap top-in">
-    <a class="brand" href="${home}" aria-label="xssh home"><img src="/icon.svg" alt="" width="28" height="28"><span>xssh</span></a>
-    <a class="ver" href="${pre}/download">v${esc(p.version)}</a>
+    <a class="brand" href="${home}" aria-label="xssh home"><img src="/icon.svg" alt="" width="22" height="22"><span>xssh</span></a>
+    <a class="tag" href="${pre}/download">v${esc(p.version)}</a>
     <nav class="nav" aria-label="Main">
       <a href="${pre}/docs"${cur("docs")}>${esc(t.nav.docs)}</a>
       <a href="${pre}/download"${cur("download")}>${esc(t.nav.download)}</a>
@@ -119,7 +117,7 @@ ${p.body}
 </main>
 <footer class="foot">
   <div class="wrap foot-in">
-    <a class="brand small" href="${home}"><img src="/icon.svg" alt="" width="22" height="22"><span>xssh</span></a>
+    <a class="brand small" href="${home}"><img src="/icon.svg" alt="" width="18" height="18"><span>xssh</span></a>
     <p>${esc(t.footer)}</p>
     <nav aria-label="Footer">
       <a href="${pre}/docs">${esc(t.footLinks.docs)}</a>

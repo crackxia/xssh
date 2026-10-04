@@ -29,11 +29,18 @@ const en = {
 	orDownload: "Or download",
 	allReleases: "All releases",
 	meta: "Windows x64 · Remote: Linux, macOS, FreeBSD · MIT",
+	heroNote: "Output as the agent sees it.",
 
 	compareH: "No more hanging on prompts",
 	compareP: "Same job, two tools.",
 	sshVerdict: "Times out at the password prompt.",
 	xsshVerdict: "The prompt is reported and answered. The shell keeps its state.",
+
+	desktopH: "A desktop manager for the human",
+	desktopP: "Hosts, sessions, forwards, jobs, audit log and daemon in one window. Watching never disturbs the agent.",
+	desktopNote: "Interface preview with sample data. The app's interface is in Chinese.",
+
+	cols: { command: "Command", does: "What it does", state: "State", line: "Status line", meaning: "Meaning" },
 
 	commandsH: "One command, one exact result",
 	commandsP: "Terse, ANSI-free output with exit codes and next steps.",
@@ -81,9 +88,10 @@ const en = {
 	] as [string, string][],
 	stepCmds: ["", INSTALL_PS, "xssh host add web1 --host 10.0.0.5 --user deploy --ask-password"],
 	agentsLabel: "Skill for",
+	or: "or",
 
 	footer: "MIT licensed.",
-	footLinks: { docs: "Guide", download: "Download", github: "GitHub", llms: "llms.txt" },
+	footLinks: { docs: "Docs", download: "Download", github: "GitHub", llms: "llms.txt" },
 
 	docs: {
 		title: "xssh guide",
@@ -126,11 +134,18 @@ const zh: Strings = {
 	orDownload: "或下载",
 	allReleases: "全部版本",
 	meta: "Windows x64 · 远端：Linux、macOS、FreeBSD · MIT",
+	heroNote: "agent 看到的输出就是这样。",
 
 	compareH: "不再卡在提示上",
 	compareP: "同一件事，两个工具。",
 	sshVerdict: "卡在密码提示，超时。",
 	xsshVerdict: "提示被报告、被回答。shell 状态保留。",
+
+	desktopH: "给人用的桌面管理器",
+	desktopP: "主机、会话、端口转发、后台任务、审计日志和守护进程，一个窗口管理。查看会话不会打扰 agent。",
+	desktopNote: "界面示意，数据为示例。",
+
+	cols: { command: "命令", does: "作用", state: "状态", line: "状态行", meaning: "含义" },
 
 	commandsH: "一条命令，一个精确结果",
 	commandsP: "输出简洁、无颜色码，带退出码和下一步。",
@@ -178,9 +193,10 @@ const zh: Strings = {
 	],
 	stepCmds: ["", INSTALL_PS, "xssh host add web1 --host 10.0.0.5 --user deploy --ask-password"],
 	agentsLabel: "skill 支持",
+	or: "或",
 
 	footer: "MIT 开源。",
-	footLinks: { docs: "手册", download: "下载", github: "GitHub", llms: "llms.txt" },
+	footLinks: { docs: "文档", download: "下载", github: "GitHub", llms: "llms.txt" },
 
 	docs: {
 		title: "xssh 手册",

@@ -1,0 +1,157 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-04T00:00:00Z",
+  "title": "Design System: xssh.io",
+  "extensions": {
+    "colorMeta": {
+      "page": { "role": "neutral", "displayName": "White Page", "canonical": "#ffffff", "tonalRamp": ["#0a0a0a", "#262626", "#404040", "#737373", "#a3a3a3", "#d4d4d4", "#f5f5f5", "#ffffff"] },
+      "panel": { "role": "neutral", "displayName": "Panel Grey", "canonical": "#fafafa", "tonalRamp": ["#0a0a0a", "#262626", "#404040", "#737373", "#a3a3a3", "#d4d4d4", "#f5f5f5", "#fafafa"] },
+      "title-bar": { "role": "neutral", "displayName": "Title-Bar Grey", "canonical": "#f8f8f8", "tonalRamp": ["#0a0a0a", "#262626", "#404040", "#737373", "#a3a3a3", "#d4d4d4", "#f5f5f5", "#f8f8f8"] },
+      "well": { "role": "neutral", "displayName": "Well Grey", "canonical": "#f5f5f5", "tonalRamp": ["#0a0a0a", "#262626", "#404040", "#737373", "#a3a3a3", "#d4d4d4", "#e5e5e5", "#f5f5f5"] },
+      "select": { "role": "neutral", "displayName": "Selection Grey", "canonical": "#e5e5e5", "tonalRamp": ["#0a0a0a", "#262626", "#404040", "#737373", "#a3a3a3", "#d4d4d4", "#e5e5e5", "#f5f5f5"] },
+      "hairline": { "role": "neutral", "displayName": "Hairline", "canonical": "#e5e5e5", "tonalRamp": ["#0a0a0a", "#262626", "#404040", "#737373", "#a3a3a3", "#d4d4d4", "#e5e5e5", "#f5f5f5"] },
+      "hairline-strong": { "role": "neutral", "displayName": "Strong Hairline", "canonical": "#d4d4d4", "tonalRamp": ["#0a0a0a", "#262626", "#404040", "#737373", "#a3a3a3", "#d4d4d4", "#e5e5e5", "#f5f5f5"] },
+      "ink": { "role": "neutral", "displayName": "Ink", "canonical": "#0a0a0a", "tonalRamp": ["#0a0a0a", "#171717", "#262626", "#404040", "#525252", "#737373", "#a3a3a3", "#d4d4d4"] },
+      "ink-secondary": { "role": "neutral", "displayName": "Secondary Ink", "canonical": "#404040", "tonalRamp": ["#0a0a0a", "#171717", "#262626", "#404040", "#525252", "#737373", "#a3a3a3", "#d4d4d4"] },
+      "output-grey": { "role": "neutral", "displayName": "Output Grey", "canonical": "#525252", "tonalRamp": ["#0a0a0a", "#171717", "#262626", "#404040", "#525252", "#737373", "#a3a3a3", "#d4d4d4"] },
+      "ink-muted": { "role": "neutral", "displayName": "Muted Ink", "canonical": "#737373", "tonalRamp": ["#0a0a0a", "#171717", "#262626", "#404040", "#525252", "#737373", "#a3a3a3", "#d4d4d4"] },
+      "primary": { "role": "primary", "displayName": "Near-Black Ink", "canonical": "#171717", "tonalRamp": ["#0a0a0a", "#171717", "#262626", "#404040", "#525252", "#737373", "#a3a3a3", "#d4d4d4"] },
+      "primary-hover": { "role": "primary", "displayName": "Graphite", "canonical": "#262626", "tonalRamp": ["#0a0a0a", "#171717", "#262626", "#404040", "#525252", "#737373", "#a3a3a3", "#d4d4d4"] },
+      "on-primary": { "role": "neutral", "displayName": "Off-White", "canonical": "#fafafa", "tonalRamp": ["#0a0a0a", "#262626", "#404040", "#737373", "#a3a3a3", "#d4d4d4", "#f5f5f5", "#fafafa"] },
+      "done-line": { "role": "status", "displayName": "Done Green (line)", "canonical": "#22c55e", "tonalRamp": ["#14532d", "#166534", "#15803d", "#16a34a", "#22c55e", "#4ade80", "#86efac", "#dcfce7"] },
+      "done-text": { "role": "status", "displayName": "Done Green (text)", "canonical": "#15803d", "tonalRamp": ["#14532d", "#166534", "#15803d", "#16a34a", "#22c55e", "#4ade80", "#86efac", "#dcfce7"] },
+      "done-icon": { "role": "status", "displayName": "Done Green (icon)", "canonical": "#16a34a", "tonalRamp": ["#14532d", "#166534", "#15803d", "#16a34a", "#22c55e", "#4ade80", "#86efac", "#dcfce7"] },
+      "running-line": { "role": "status", "displayName": "Running Cyan (line)", "canonical": "#06b6d4", "tonalRamp": ["#164e63", "#155e75", "#0e7490", "#0891b2", "#06b6d4", "#22d3ee", "#67e8f9", "#cffafe"] },
+      "running-text": { "role": "status", "displayName": "Running Cyan (text)", "canonical": "#0e7490", "tonalRamp": ["#164e63", "#155e75", "#0e7490", "#0891b2", "#06b6d4", "#22d3ee", "#67e8f9", "#cffafe"] },
+      "waiting-line": { "role": "status", "displayName": "Waiting Amber (line)", "canonical": "#eab308", "tonalRamp": ["#713f12", "#854d0e", "#a16207", "#ca8a04", "#eab308", "#facc15", "#fde047", "#fef9c3"] },
+      "waiting-text": { "role": "status", "displayName": "Waiting Amber (text)", "canonical": "#a16207", "tonalRamp": ["#713f12", "#854d0e", "#a16207", "#ca8a04", "#eab308", "#facc15", "#fde047", "#fef9c3"] },
+      "disconnected-line": { "role": "status", "displayName": "Disconnected Red (line)", "canonical": "#ef4444", "tonalRamp": ["#7f1d1d", "#991b1b", "#b91c1c", "#dc2626", "#ef4444", "#f87171", "#fca5a5", "#fee2e2"] },
+      "disconnected-text": { "role": "status", "displayName": "Disconnected Red (text)", "canonical": "#b91c1c", "tonalRamp": ["#7f1d1d", "#991b1b", "#b91c1c", "#dc2626", "#ef4444", "#f87171", "#fca5a5", "#fee2e2"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Home h1 only; 32px at <=720px." },
+      "headline": { "displayName": "Headline", "purpose": "Section h2; 24px at <=720px." },
+      "title": { "displayName": "Title", "purpose": "Step titles, session name, release headers (16-18px)." },
+      "body": { "displayName": "Body", "purpose": "Running text; docs prose at 1.7 leading, max 76ch." },
+      "lede": { "displayName": "Lede", "purpose": "The single paragraph under the h1, secondary ink, max 58ch." },
+      "label": { "displayName": "Label", "purpose": "Field labels, table heads, captions, tags. Normal case, no tracking." },
+      "mono": { "displayName": "Mono", "purpose": "Commands, terminal output, hashes, versions. Consolas-class, ligatures off." }
+    },
+    "shadows": [
+      { "name": "window", "value": "0 1px 2px rgba(0, 0, 0, 0.04), 0 16px 40px -16px rgba(0, 0, 0, 0.16)", "purpose": "Only on the desktop manager replica, so it reads as a window on the page." }
+    ],
+    "motion": [
+      { "name": "ease", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Button background/colour/border transitions at 0.15s; none under reduced motion." }
+    ],
+    "breakpoints": [
+      { "name": "stack", "value": "1000px" },
+      { "name": "mobile", "value": "720px" },
+      { "name": "touch", "value": "(pointer: coarse)" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Near-black filled button for the single main action of a view.",
+      "html": "<button class=\"ds-btn ds-btn-primary\"><svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"9\" y=\"9\" width=\"12\" height=\"12\" rx=\"2\"/><path d=\"M5 15V5a2 2 0 0 1 2-2h10\"/></svg>Copy</button>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; height: 36px; padding: 0 14px; border: 1px solid #e5e5e5; border-radius: 6px; background: #ffffff; color: #0a0a0a; font: 500 14px/1 system-ui, 'Segoe UI', -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif; cursor: pointer; transition: background-color 0.15s cubic-bezier(0.16, 1, 0.3, 1); } .ds-btn-primary { background: #171717; border-color: transparent; color: #fafafa; } .ds-btn-primary:hover { background: #262626; } .ds-btn:focus-visible { outline: 2px solid #a3a3a3; outline-offset: 2px; }"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "White button with a hairline border; every non-primary action.",
+      "html": "<a class=\"ds-btn-outline\" href=\"#\">Download zip <span class=\"ds-dim\">x64</span></a>",
+      "css": ".ds-btn-outline { display: inline-flex; align-items: center; gap: 7px; height: 36px; padding: 0 14px; border: 1px solid #e5e5e5; border-radius: 6px; background: #ffffff; color: #0a0a0a; font: 500 14px/1 system-ui, 'Segoe UI', sans-serif; text-decoration: none; transition: background-color 0.15s cubic-bezier(0.16, 1, 0.3, 1); } .ds-btn-outline:hover { background: #f5f5f5; } .ds-btn-outline:focus-visible { outline: 2px solid #a3a3a3; outline-offset: 2px; } .ds-dim { color: #737373; font: 12.5px Consolas, ui-monospace, monospace; }"
+    },
+    {
+      "name": "Status Tags",
+      "kind": "chip",
+      "refersTo": "tag",
+      "description": "The app's outline tags: status-colour border, text one step darker.",
+      "html": "<span class=\"ds-tag ds-ok\">done</span> <span class=\"ds-tag ds-run\">running</span> <span class=\"ds-tag ds-wait\">waiting</span> <span class=\"ds-tag ds-bad\">disconnected</span> <span class=\"ds-tag\">v0.2.1</span>",
+      "css": ".ds-tag { display: inline-flex; align-items: center; height: 20px; padding: 0 6px; border: 1px solid #e5e5e5; border-radius: 3px; background: #ffffff; color: #404040; font: 500 12px/1 system-ui, 'Segoe UI', sans-serif; white-space: nowrap; } .ds-ok { border-color: #22c55e; color: #15803d; } .ds-run { border-color: #06b6d4; color: #0e7490; } .ds-wait { border-color: #eab308; color: #a16207; } .ds-bad { border-color: #ef4444; color: #b91c1c; }"
+    },
+    {
+      "name": "Code Line",
+      "kind": "input",
+      "refersTo": "codeline",
+      "description": "One copyable command in a grey well with a ghost Copy.",
+      "html": "<div class=\"ds-codeline\"><code><span class=\"ds-ps\">PS&gt;</span> irm https://xssh.io/install.ps1 | iex</code><button class=\"ds-ghost\">Copy</button></div>",
+      "css": ".ds-codeline { display: flex; align-items: center; gap: 8px; padding: 4px 4px 4px 12px; background: #f5f5f5; border-radius: 6px; } .ds-codeline code { flex: 1; min-width: 0; overflow-x: auto; white-space: nowrap; font: 13.5px/28px Consolas, 'Cascadia Mono', ui-monospace, monospace; } .ds-ps { color: #737373; } .ds-ghost { height: 28px; padding: 0 8px; border: 1px solid transparent; border-radius: 6px; background: transparent; color: #737373; font: 500 13px/1 system-ui, 'Segoe UI', sans-serif; cursor: pointer; } .ds-ghost:hover { background: #e5e5e5; color: #0a0a0a; } .ds-ghost:focus-visible { outline: 2px solid #a3a3a3; outline-offset: 2px; }"
+    },
+    {
+      "name": "Terminal",
+      "kind": "card",
+      "refersTo": "frame",
+      "description": "Hairline frame, panel-grey caption, grey well; xssh status lines render as tags.",
+      "html": "<figure class=\"ds-term\"><figcaption>xssh</figcaption><pre><span class=\"ds-ps\">$</span> xssh session run w -- 'sudo apt-get upgrade'\n<span class=\"ds-st ds-st-wait\">[xssh w waiting prompt=confirm]</span>\n<span class=\"ds-ps\">$</span> xssh session send w y\n<span class=\"ds-st ds-st-done\">[xssh w done exit=0]</span></pre></figure>",
+      "css": ".ds-term { margin: 0; border: 1px solid #e5e5e5; border-radius: 8px; overflow: hidden; background: #ffffff; } .ds-term figcaption { display: flex; align-items: center; height: 38px; padding: 0 14px; background: #fafafa; border-bottom: 1px solid #e5e5e5; color: #737373; font: 500 12px system-ui, 'Segoe UI', sans-serif; } .ds-term pre { margin: 0; padding: 14px 16px; background: #f5f5f5; font: 13px/1.9 Consolas, ui-monospace, monospace; color: #0a0a0a; overflow-x: auto; } .ds-ps { color: #737373; } .ds-st { display: inline-block; padding: 0 6px; border: 1px solid #06b6d4; border-radius: 3px; background: #ffffff; color: #0e7490; line-height: 1.55; font-size: 12.5px; } .ds-st-done { border-color: #22c55e; color: #15803d; } .ds-st-wait { border-color: #eab308; color: #a16207; }"
+    },
+    {
+      "name": "Table",
+      "kind": "card",
+      "refersTo": "table-head",
+      "description": "The app's frame: hairline border, grey head, row rules, grey hover.",
+      "html": "<div class=\"ds-tbl\"><div class=\"ds-head\"><span>Command</span><span>What it does</span></div><div class=\"ds-row\"><code>xssh run</code><span>Run one command and return its output.</span></div><div class=\"ds-row\"><code>xssh session</code><span>Open a persistent shell.</span></div></div>",
+      "css": ".ds-tbl { border: 1px solid #e5e5e5; border-radius: 8px; overflow: hidden; background: #ffffff; font: 14.5px system-ui, 'Segoe UI', sans-serif; } .ds-head, .ds-row { display: grid; grid-template-columns: 200px 1fr; column-gap: 16px; align-items: center; padding: 0 16px; } .ds-head { height: 38px; background: #fafafa; border-bottom: 1px solid #e5e5e5; color: #737373; font-size: 12px; font-weight: 500; } .ds-row { min-height: 48px; padding-block: 10px; border-bottom: 1px solid rgba(229,229,229,0.7); color: #404040; } .ds-row:last-child { border-bottom: 0; } .ds-row:hover { background: #f5f5f5; } .ds-row code { font: 13.5px Consolas, ui-monospace, monospace; color: #0a0a0a; }"
+    },
+    {
+      "name": "Title-Bar Header",
+      "kind": "nav",
+      "refersTo": "title-bar",
+      "description": "The app's title bar as site header: icon + xssh + version, nav items, outlined language switch.",
+      "html": "<header class=\"ds-top\"><span class=\"ds-brand\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 20 20\" aria-hidden=\"true\"><rect width=\"20\" height=\"20\" rx=\"5\" fill=\"#171717\"/></svg>xssh</span><span class=\"ds-ver\">v0.2.1</span><nav class=\"ds-nav\"><a href=\"#\" aria-current=\"page\">Docs</a><a href=\"#\">Download</a><a href=\"#\">GitHub</a><a href=\"#\" class=\"ds-lang\">中文</a></nav></header>",
+      "css": ".ds-top { display: flex; align-items: center; gap: 10px; height: 52px; padding: 0 20px; background: #f8f8f8; border-bottom: 1px solid #e5e5e5; font-family: system-ui, 'Segoe UI', sans-serif; } .ds-brand { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 15px; color: #0a0a0a; } .ds-ver { display: inline-flex; align-items: center; height: 20px; padding: 0 6px; border: 1px solid #e5e5e5; border-radius: 3px; background: #fff; color: #404040; font: 500 12px/1 system-ui, sans-serif; } .ds-nav { display: flex; gap: 2px; margin-left: auto; } .ds-nav a { display: inline-flex; align-items: center; height: 32px; padding: 0 10px; border-radius: 6px; color: #404040; font-size: 14px; text-decoration: none; } .ds-nav a:hover { background: rgba(229,229,229,0.6); color: #0a0a0a; } .ds-nav a[aria-current=page] { background: #e5e5e5; color: #0a0a0a; font-weight: 500; } .ds-nav a:focus-visible { outline: 2px solid #a3a3a3; outline-offset: 2px; } .ds-lang { margin-left: 6px; border: 1px solid #e5e5e5; background: #fff; }"
+    },
+    {
+      "name": "Install Step Badges",
+      "kind": "custom",
+      "refersTo": "",
+      "description": "Numbered circular step badges; an alternative step gets a dashed 'or' badge, never a number.",
+      "html": "<div class=\"ds-steps\"><span class=\"ds-num\">1</span><span class=\"ds-num ds-or\">or</span><span class=\"ds-num\">2</span></div>",
+      "css": ".ds-steps { display: flex; gap: 12px; } .ds-num { display: grid; place-items: center; width: 28px; height: 28px; border: 1px solid #e5e5e5; border-radius: 50%; background: #fafafa; color: #404040; font: 600 13px system-ui, 'Segoe UI', sans-serif; } .ds-or { border-style: dashed; background: #ffffff; color: #737373; font-size: 12px; font-weight: 500; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The App's Sibling",
+    "overview": "The site speaks the interface language of the desktop manager, xssh-desktop. The desktop manager uses gpui-kit 0.7's default light theme (shadcn \"neutral\"), with radius 6 / radius_lg 8 and Consolas as the Windows mono. The site is that theme on the web. The page is white, with hairline frames, grey panels for table heads and title bars, grey wells for terminals and code, and a near-black primary button. The only colour comes from the four outline status tags, drawn exactly as the app draws them. There are no hero illustrations and no dark terminal-hero landing. The visual proof is the product's own interface, rebuilt in HTML.\n\nThe site is light only (`color-scheme: light`, user decision 2026-10-04). Density is that of a calm desktop tool: 15px body, 13px mono, 12px labels and table heads, generous section spacing between dense framed panels. Depth is flat. The interactive replica of the desktop window is the only element with a shadow.",
+    "keyCharacteristics": [
+      "White page, hairline (#e5e5e5) borders, grey panels and wells; never a dark ground.",
+      "Near-black primary button; every other button is white with a hairline border.",
+      "Colour comes only from status: green done, cyan running, amber waiting, red disconnected, always as outline tags.",
+      "System UI sans for everything, Consolas-class mono for commands and output.",
+      "The desktop manager replica is the signature: a real, switchable window."
+    ],
+    "rules": [
+      { "name": "The Status-Only Colour Rule", "body": "Hue appears only to show a session state or a success check. Decoration, links, headings and sections stay neutral.", "section": "colors" },
+      { "name": "The One-Step-Darker Rule", "body": "A status tag's border uses the app's colour; its text uses the next darker step of the same hue (green-500 border, green-700 text), so 12px labels pass contrast. Never set tag text in the border colour.", "section": "colors" },
+      { "name": "The One-Line Subtitle Rule", "body": "Every subtitle or section description is one short sentence that does not wrap at the default desktop width. This is a standing user preference across xssh UIs.", "section": "typography" },
+      { "name": "The Chinese Setting Rule", "body": "On `:lang(zh)`, h1 and h2 use letter-spacing 0 and `word-break: keep-all`. The hero h1 uses 1.25 leading.", "section": "typography" },
+      { "name": "The Never-Cut-a-Command Rule", "body": "A copyable command line scrolls horizontally on wide screens. On phones it wraps (`pre-wrap` + `break-all`). It is never truncated or clipped mid-token.", "section": "layout" },
+      { "name": "The One-Window Rule", "body": "No gradients, glows or other shadows. Only the replica window casts a shadow, and it is soft.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do keep the page white and light only. Use panel grey for heads and bands, and well grey for code and terminals.",
+      "Do frame content with 1px hairlines and 8px corners. Use tables (grey head, row rules) for lists.",
+      "Do draw every status as an outline tag: app-colour border, text one step darker.",
+      "Do use the near-black primary for the single main action. Every other button is white with a hairline.",
+      "Do keep subtitles to one short sentence that does not wrap at the default width.",
+      "Do wrap copyable commands on phones (break-all) rather than cutting them.",
+      "Do mark an alternative install step with a dashed \"或 / or\" badge.",
+      "Do raise every control to 44px under `(pointer: coarse)`.",
+      "Do bump `ASSET_V` in `site/src/html.ts` after any CSS or JS change."
+    ],
+    "donts": [
+      "Don't add a dark mode, dark hero or dark terminal ground.",
+      "Don't use gradients, glows, or any shadow other than the replica's soft window shadow.",
+      "Don't add hues for decoration. Colour means session state.",
+      "Don't set tag text in the border colour, or fill status tags.",
+      "Don't self-host or import a display or mono web font. Use the system UI sans and Consolas-class mono.",
+      "Don't put real hosts, IPs or user names in the replica or any sample. Use documentation ranges.",
+      "Don't translate the replica's interface into English. It mirrors the Chinese-only app."
+    ]
+  }
+}

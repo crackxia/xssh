@@ -1,4 +1,4 @@
-// xssh.io: copy buttons. The label swaps to the "done" text with a check for a moment.
+// xssh.io: copy buttons (the label swaps to the "done" text with a check for a moment) and the desktop replica.
 (() => {
   const CHECK = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 
@@ -19,6 +19,18 @@
       return ok;
     }
   }
+
+  // The desktop replica: its sidebar switches between the pages it shows.
+  document.addEventListener("click", (e) => {
+    const item = e.target.closest(".app-nav [data-view]");
+    if (!item) return;
+    const app = item.closest(".app");
+    for (const b of app.querySelectorAll(".app-nav [data-view]")) {
+      if (b === item) b.setAttribute("aria-current", "true");
+      else b.removeAttribute("aria-current");
+    }
+    for (const p of app.querySelectorAll("[data-pane]")) p.hidden = p.dataset.pane !== item.dataset.view;
+  });
 
   document.addEventListener("click", async (e) => {
     const btn = e.target.closest("[data-copy]");
